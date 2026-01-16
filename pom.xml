@@ -11,7 +11,7 @@
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<lwjgl.version>3.3.2</lwjgl.version>
+		<lwjgl.version>3.3.6</lwjgl.version>
 		<lwjgl3-awt.version>0.1.8</lwjgl3-awt.version>
 	</properties>
 	
