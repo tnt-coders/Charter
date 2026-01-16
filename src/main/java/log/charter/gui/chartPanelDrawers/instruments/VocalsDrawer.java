@@ -9,7 +9,6 @@ import static log.charter.util.ScalingUtils.positionToX;
 import static log.charter.util.ScalingUtils.xToPosition;
 
 import java.awt.Font;
-import java.awt.Graphics2D;
 import java.util.List;
 import java.util.Set;
 
@@ -20,6 +19,7 @@ import log.charter.data.song.vocals.Vocal.VocalFlag;
 import log.charter.data.types.PositionType;
 import log.charter.gui.ChartPanel;
 import log.charter.gui.chartPanelDrawers.common.BeatsDrawer;
+import log.charter.gui.chartPanelDrawers.common.GraphicsWrapper;
 import log.charter.gui.chartPanelDrawers.common.LyricLinesDrawer;
 import log.charter.gui.chartPanelDrawers.common.waveform.WaveFormDrawer;
 import log.charter.gui.chartPanelDrawers.data.FrameData;
@@ -47,10 +47,10 @@ public class VocalsDrawer {
 		private final DrawableShapeList wordConnections = new DrawableShapeList();
 
 		private final ImmutableBeatsMap beats;
-		private final Graphics2D g;
+		private final GraphicsWrapper g;
 		private final double time;
 
-		public VocalNotesDrawingData(final ImmutableBeatsMap beats, final Graphics2D g, final double time) {
+		public VocalNotesDrawingData(final ImmutableBeatsMap beats, final GraphicsWrapper g, final double time) {
 			this.beats = beats;
 			this.g = g;
 			this.time = time;
@@ -99,7 +99,7 @@ public class VocalsDrawer {
 			notes.add(strokedRectangle(position.resized(0, 0, -1, -1), ColorLabel.VOCAL_HIGHLIGHT));
 		}
 
-		public void draw(final Graphics2D g) {
+		public void draw(final GraphicsWrapper g) {
 			wordConnections.draw(g);
 			notes.draw(g);
 			texts.draw(g);

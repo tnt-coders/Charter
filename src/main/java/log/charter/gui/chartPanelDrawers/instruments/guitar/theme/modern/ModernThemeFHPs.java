@@ -7,8 +7,8 @@ import static log.charter.gui.chartPanelDrawers.common.DrawerUtils.lanesBottom;
 import static log.charter.gui.chartPanelDrawers.drawableShapes.DrawableShape.lineVertical;
 import static log.charter.gui.chartPanelDrawers.drawableShapes.DrawableShape.strokedRectangle;
 
+import log.charter.gui.chartPanelDrawers.common.GraphicsWrapper;
 import java.awt.Font;
-import java.awt.Graphics2D;
 
 import log.charter.data.config.ChartPanelColors.ColorLabel;
 import log.charter.data.song.FHP;
@@ -46,12 +46,12 @@ public class ModernThemeFHPs implements ThemeFHPs {
 	}
 
 	@Override
-	public void addCurrentFHP(final Graphics2D g, final FHP fhp) {
+	public void addCurrentFHP(final GraphicsWrapper g, final FHP fhp) {
 		addFHP(getLabel(fhp), 0);
 	}
 
 	@Override
-	public void addCurrentFHP(final Graphics2D g, final FHP fhp, final int nextFHPX) {
+	public void addCurrentFHP(final GraphicsWrapper g, final FHP fhp, final int nextFHPX) {
 		final String label = getLabel(fhp);
 		final ShapeSize expectedSize = Text.getExpectedSize(g, fhpFont, label);
 		final int x = min(0, nextFHPX - 4 - expectedSize.width);
@@ -81,5 +81,4 @@ public class ModernThemeFHPs implements ThemeFHPs {
 	public void addFHPHighlight(final int x) {
 		data.fhps.add(lineVertical(x, fhpY, lanesBottom, ColorLabel.HIGHLIGHT));
 	}
-
 }

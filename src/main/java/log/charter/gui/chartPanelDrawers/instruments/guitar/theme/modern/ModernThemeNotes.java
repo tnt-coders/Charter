@@ -138,7 +138,7 @@ public class ModernThemeNotes implements ThemeNotes {
 	private void addHopoOrBassTechIcon(final EditorNoteDrawingData note, final int noteY) {
 		BufferedImage img = switch (note.bassPickingTech) {
 			case POP -> popIcon;
-			case SLAP -> img = slapIcon;
+			case SLAP -> slapIcon;
 			default -> null;
 		};
 		if (img != null) {
@@ -147,9 +147,9 @@ public class ModernThemeNotes implements ThemeNotes {
 		}
 
 		img = switch (note.hopo) {
-			case HAMMER_ON -> img = hammerOnIcon;
-			case PULL_OFF -> img = pullOffIcon;
-			case TAP -> img = tapIcon;
+			case HAMMER_ON -> hammerOnIcon;
+			case PULL_OFF -> pullOffIcon;
+			case TAP -> tapIcon;
 			default -> null;
 		};
 		if (img == null) {

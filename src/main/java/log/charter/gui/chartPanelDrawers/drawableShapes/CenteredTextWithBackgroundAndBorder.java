@@ -2,19 +2,18 @@ package log.charter.gui.chartPanelDrawers.drawableShapes;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 
 import log.charter.data.config.ChartPanelColors.ColorLabel;
+import log.charter.gui.chartPanelDrawers.common.GraphicsWrapper;
 import log.charter.util.data.Position2D;
 
 public class CenteredTextWithBackgroundAndBorder implements DrawableShape {
-	public static ShapePositionWithSize getExpectedPositionAndSize(final Graphics2D g, final Position2D position,
+	public static ShapePositionWithSize getExpectedPositionAndSize(final GraphicsWrapper g, final Position2D position,
 			final Font font, final String text) {
 		return CenteredTextWithBackground.getExpectedPositionAndSize(g, position, font, text).resized(-1, -1, 2, 2);
 	}
 
-	public static ShapeSize getExpectedSize(final Graphics2D g, final Font font, final String text) {
+	public static ShapeSize getExpectedSize(final GraphicsWrapper g, final Font font, final String text) {
 		final ShapeSize innerSize = CenteredTextWithBackground.getExpectedSize(g, font, text);
 		return new ShapeSize(innerSize.width + 2, innerSize.height + 2);
 	}
@@ -34,18 +33,19 @@ public class CenteredTextWithBackgroundAndBorder implements DrawableShape {
 	}
 
 	@Override
-	public void draw(final Graphics2D g) {
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	public void draw(final GraphicsWrapper g) {
+		g.setAntialiasing(true);
 		draw(g, getPositionAndSize(g));
 	}
 
-	public ShapePositionWithSize getPositionAndSize(final Graphics2D g) {
+	public ShapePositionWithSize getPositionAndSize(final GraphicsWrapper g) {
 		return centeredTextWithBackground.getPositionAndSize(g).resized(-1, -1, 2, 2);
 	}
 
-	public void draw(final Graphics2D g, final ShapePositionWithSize positionAndSize) {
+	public void draw(final GraphicsWrapper g, final ShapePositionWithSize positionAndSize) {
 		if (borderColor != null) {
 			g.setColor(borderColor);
+			g.setStroke(1);
 			g.drawRect(positionAndSize.x, positionAndSize.y, positionAndSize.width - 1, positionAndSize.height - 1);
 		}
 

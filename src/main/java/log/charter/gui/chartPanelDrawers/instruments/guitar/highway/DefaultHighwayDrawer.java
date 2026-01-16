@@ -35,7 +35,6 @@ import static log.charter.util.Utils.getStringPosition;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -78,6 +77,8 @@ import log.charter.util.Utils;
 import log.charter.util.collections.ArrayList2;
 import log.charter.util.data.IntRange;
 import log.charter.util.data.Position2D;
+
+import log.charter.gui.chartPanelDrawers.common.GraphicsWrapper;
 
 public class DefaultHighwayDrawer implements HighwayDrawer {
 	public static BufferedImage loadImage(final String path) {
@@ -122,9 +123,10 @@ public class DefaultHighwayDrawer implements HighwayDrawer {
 	protected final DrawableShapeList slideFrets;
 	protected final DrawableShapeList toneChanges;
 
-	protected final Graphics2D g;
+	protected final GraphicsWrapper g;
 
-	public DefaultHighwayDrawer(final Graphics2D g, final int strings, final double time) {
+	public DefaultHighwayDrawer(final GraphicsWrapper g, final int strings, final double time) {
+		this.g = g;
 		this.strings = strings;
 		this.time = time;
 
@@ -162,8 +164,6 @@ public class DefaultHighwayDrawer implements HighwayDrawer {
 		selects = new DrawableShapeList();
 		slideFrets = new DrawableShapeList();
 		toneChanges = new DrawableShapeList();
-
-		this.g = g;
 	}
 
 	protected Font defineFHPFont() {
@@ -217,7 +217,7 @@ public class DefaultHighwayDrawer implements HighwayDrawer {
 		sectionsAndPhrases.add(text);
 	}
 
-	private void addSection(final Graphics2D g, final SectionType section, final int x) {
+	private void addSection(final GraphicsWrapper g, final SectionType section, final int x) {
 		final TextWithBackground text = new TextWithBackground(new Position2D(x, sectionNamesY), fhpFont,
 				section.label.label(), ColorLabel.SECTION_NAME_BG, ColorLabel.BASE_DARK_TEXT,
 				ColorLabel.BASE_BORDER.color());
@@ -250,31 +250,31 @@ public class DefaultHighwayDrawer implements HighwayDrawer {
 	}
 
 	@Override
-	public void addCurrentSection(final Graphics2D g, final SectionType section) {
+	public void addCurrentSection(final GraphicsWrapper g, final SectionType section) {
 	}
 
 	@Override
-	public void addCurrentSection(final Graphics2D g, final SectionType section, final int nextSectionX) {
+	public void addCurrentSection(final GraphicsWrapper g, final SectionType section, final int nextSectionX) {
 	}
 
 	@Override
-	public void addCurrentPhrase(final Graphics2D g, final Phrase phrase, final String phraseName,
+	public void addCurrentPhrase(final GraphicsWrapper g, final Phrase phrase, final String phraseName,
 			final int nextEventPointX) {
 	}
 
 	@Override
-	public void addCurrentPhrase(final Graphics2D g, final Phrase phrase, final String phraseName) {
+	public void addCurrentPhrase(final GraphicsWrapper g, final Phrase phrase, final String phraseName) {
 	}
 
 	@Override
-	public void addEvents(final Graphics2D g, final EventPoint eventPoint, final int x) {
+	public void addEvents(final GraphicsWrapper g, final EventPoint eventPoint, final int x) {
 		if (!eventPoint.events.isEmpty()) {
 			addEvents(eventPoint.events, x);
 		}
 	}
 
 	@Override
-	public void addEventPoint(final Graphics2D g, final EventPoint eventPoint, final Phrase phrase, final int x,
+	public void addEventPoint(final GraphicsWrapper g, final EventPoint eventPoint, final Phrase phrase, final int x,
 			final boolean selected, final boolean highlighted) {
 		if (eventPoint.section != null) {
 			addSection(g, eventPoint.section, x);
@@ -765,11 +765,11 @@ public class DefaultHighwayDrawer implements HighwayDrawer {
 	}
 
 	@Override
-	public void addCurrentFHP(final Graphics2D g, final FHP fhp) {
+	public void addCurrentFHP(final GraphicsWrapper g, final FHP fhp) {
 	}
 
 	@Override
-	public void addCurrentFHP(final Graphics2D g, final FHP fhp, final int nextFHPX) {
+	public void addCurrentFHP(final GraphicsWrapper g, final FHP fhp, final int nextFHPX) {
 	}
 
 	protected void addFHPLine(final int x) {
@@ -839,11 +839,11 @@ public class DefaultHighwayDrawer implements HighwayDrawer {
 	}
 
 	@Override
-	public void addCurrentTone(final Graphics2D g, final String tone) {
+	public void addCurrentTone(final GraphicsWrapper g, final String tone) {
 	}
 
 	@Override
-	public void addCurrentTone(final Graphics2D g, final String tone, final int nextToneChangeX) {
+	public void addCurrentTone(final GraphicsWrapper g, final String tone, final int nextToneChangeX) {
 	}
 
 	private void addToneChangeBox(final int x, final ColorLabel color) {
@@ -873,7 +873,7 @@ public class DefaultHighwayDrawer implements HighwayDrawer {
 	}
 
 	@Override
-	public void draw(final Graphics2D g) {
+	public void draw(final GraphicsWrapper g) {
 		g.setFont(fhpFont);
 		toneChanges.draw(g);
 		fhps.draw(g);

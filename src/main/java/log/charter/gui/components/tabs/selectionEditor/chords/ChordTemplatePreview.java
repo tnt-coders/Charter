@@ -35,6 +35,8 @@ import log.charter.data.config.ChartPanelColors.ColorLabel;
 import log.charter.data.config.ChartPanelColors.StringColorLabelType;
 import log.charter.data.config.values.InstrumentConfig;
 import log.charter.data.song.ChordTemplate;
+import log.charter.gui.chartPanelDrawers.common.GraphicsWrapper;
+import log.charter.gui.chartPanelDrawers.common.SwingGraphicsWrapper;
 import log.charter.gui.chartPanelDrawers.drawableShapes.CenteredText;
 import log.charter.gui.chartPanelDrawers.drawableShapes.DrawableShapeList;
 import log.charter.gui.chartPanelDrawers.drawableShapes.FilledRectangle;
@@ -51,6 +53,9 @@ public class ChordTemplatePreview extends JComponent implements MouseListener, M
 	private static final int minFrets = 7;
 	private static final int fretStart = 22;
 	private static final Set<Integer> dotFrets = new HashSet<>(asList(3, 5, 7, 9));
+
+	private static final java.awt.Font fretFont = new java.awt.Font(java.awt.Font.DIALOG, java.awt.Font.BOLD, 12);
+	private static final java.awt.Font beatFont = new java.awt.Font(java.awt.Font.DIALOG, java.awt.Font.BOLD, 12);
 
 	private static class FretPosition {
 		public final int fret;
@@ -204,12 +209,12 @@ public class ChordTemplatePreview extends JComponent implements MouseListener, M
 		addFretDotHigh(frets, fretPosition);
 	}
 
-	private void drawFrets(final Graphics2D g, final FretPosition[] fretPositions) {
+	private void drawFrets(final GraphicsWrapper g, final FretPosition[] fretPositions) {
 		final DrawableShapeList frets = new DrawableShapeList();
 
 		for (final FretPosition fretPosition : fretPositions) {
 			frets.add(new CenteredText(new Position2D(getPositionWithLeftHandedFlip(fretPosition.position), 10),
-					g.getFont(), fretPosition.fret + "", ColorLabel.BASE_DARK_TEXT));
+					beatFont, fretPosition.fret + "", ColorLabel.BASE_DARK_TEXT));
 
 			final int fretWidth = fretPosition.fret == 0 ? 3 : 1;
 			final IntRange fretX = new IntRange(getPositionWithLeftHandedFlip(fretPosition.position - fretWidth),
@@ -234,7 +239,7 @@ public class ChordTemplatePreview extends JComponent implements MouseListener, M
 		frets.draw(g);
 	}
 
-	private void drawStrings(final Graphics2D g) {
+	private void drawStrings(final GraphicsWrapper g) {
 		final int width = getWidth();
 		final DrawableShapeList stringLines = new DrawableShapeList();
 
@@ -248,7 +253,7 @@ public class ChordTemplatePreview extends JComponent implements MouseListener, M
 		stringLines.draw(g);
 	}
 
-	private void drawFretPressMarks(final Graphics2D g, final FretPosition[] fretPositions) {
+	private void drawFretPressMarks(final GraphicsWrapper g, final FretPosition[] fretPositions) {
 		final int strings = data.currentStrings();
 		final int baseFret = fretPositions[0].fret;
 		final DrawableShapeList pressMarks = new DrawableShapeList();
@@ -277,7 +282,7 @@ public class ChordTemplatePreview extends JComponent implements MouseListener, M
 
 			final Integer finger = chordTemplateSupplier.get().fingers.get(i);
 			final String fingerText = finger == null ? "" : finger == 0 ? "T" : finger.toString();
-			pressMarks.add(new CenteredText(position, g.getFont(), fingerText, ColorLabel.BASE_TEXT_INPUT));
+			pressMarks.add(new CenteredText(position, fretFont, fingerText, ColorLabel.BASE_TEXT_INPUT));
 		}
 
 		pressMarks.draw(g);
@@ -285,10 +290,11 @@ public class ChordTemplatePreview extends JComponent implements MouseListener, M
 
 	private void paintComponent2D(final Graphics2D g) {
 		final FretPosition[] fretPositions = getFretPositions();
+		final SwingGraphicsWrapper wrapper = new SwingGraphicsWrapper(g);
 		drawBackground(g);
-		drawFrets(g, fretPositions);
-		drawStrings(g);
-		drawFretPressMarks(g, fretPositions);
+		drawFrets(wrapper, fretPositions);
+		drawStrings(wrapper);
+		drawFretPressMarks(wrapper, fretPositions);
 	}
 
 	@Override

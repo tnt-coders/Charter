@@ -12,7 +12,6 @@ import static log.charter.util.ScalingUtils.positionToX;
 import static log.charter.util.ScalingUtils.xToPosition;
 
 import java.awt.Font;
-import java.awt.Graphics2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -160,7 +159,7 @@ public class BeatsDrawer {
 			repeat.add(filledRectangle(fullPosition, ColorLabel.REPEAT_MARKER));
 		}
 
-		public void draw(final Graphics2D g) {
+		public void draw(final GraphicsWrapper g) {
 			g.setFont(new Font(Font.DIALOG, Font.PLAIN, 15));
 			beats.draw(g);
 			repeat.draw(g);

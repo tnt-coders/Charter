@@ -2,15 +2,15 @@ package log.charter.gui.chartPanelDrawers.drawableShapes;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
 import log.charter.data.config.ChartPanelColors.ColorLabel;
+import log.charter.gui.chartPanelDrawers.common.GraphicsWrapper;
 import log.charter.util.data.Position2D;
 
 public interface DrawableShape {
-	public void draw(final Graphics2D g);
+	public void draw(final GraphicsWrapper g);
 
 	// Lines
 	public static DrawableShape line(final Position2D startPosition, final Position2D endPosition, final Color color) {

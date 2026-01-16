@@ -1,6 +1,7 @@
 package log.charter.gui.chartPanelDrawers.instruments.guitar.highway;
 
-import java.awt.Graphics2D;
+import log.charter.gui.chartPanelDrawers.common.GraphicsWrapper;
+import log.charter.gui.chartPanelDrawers.instruments.guitar.theme.modern.ModernHighwayDrawer;
 import java.util.Optional;
 
 import log.charter.data.config.GraphicalConfig;
@@ -14,14 +15,13 @@ import log.charter.data.song.ToneChange;
 import log.charter.data.song.notes.ChordOrNote;
 import log.charter.gui.chartPanelDrawers.data.EditorNoteDrawingData;
 import log.charter.gui.chartPanelDrawers.data.HighlightData.HighlightLine;
-import log.charter.gui.chartPanelDrawers.instruments.guitar.theme.modern.ModernHighwayDrawer;
 
 public interface HighwayDrawer {
 	public static void reloadGraphics() {
 		ModernHighwayDrawer.reloadGraphics();
 	}
 
-	public static HighwayDrawer getHighwayDrawer(final Graphics2D g, final int strings, final double time) {
+	public static HighwayDrawer getHighwayDrawer(final GraphicsWrapper g, final int strings, final double time) {
 		return switch (GraphicalConfig.theme) {
 			case BASIC -> new DefaultHighwayDrawer(g, strings, time);
 			case SQUARE -> new SquareHighwayDrawer(g, strings, time);
@@ -29,32 +29,32 @@ public interface HighwayDrawer {
 		};
 	}
 
-	void addCurrentSection(Graphics2D g, SectionType section);
+	void addCurrentSection(GraphicsWrapper g, SectionType section);
 
-	void addCurrentSection(Graphics2D g, SectionType section, int nextSectionX);
+	void addCurrentSection(GraphicsWrapper g, SectionType section, int nextSectionX);
 
-	void addCurrentPhrase(Graphics2D g, Phrase phrase, String phraseName, int nextEventPointX);
+	void addCurrentPhrase(GraphicsWrapper g, Phrase phrase, String phraseName, int nextEventPointX);
 
-	void addCurrentPhrase(Graphics2D g, Phrase phrase, String phraseName);
+	void addCurrentPhrase(GraphicsWrapper g, Phrase phrase, String phraseName);
 
-	void addEvents(Graphics2D g, EventPoint eventPoint, int x);
+	void addEvents(GraphicsWrapper g, EventPoint eventPoint, int x);
 
-	void addEventPoint(Graphics2D g, EventPoint eventPoint, Phrase phrase, int x, boolean selected,
+	void addEventPoint(GraphicsWrapper g, EventPoint eventPoint, Phrase phrase, int x, boolean selected,
 			boolean highlighted);
 
 	void addEventPointHighlight(int x);
 
-	void addCurrentTone(Graphics2D g, String tone);
+	void addCurrentTone(GraphicsWrapper g, String tone);
 
-	void addCurrentTone(Graphics2D g, String tone, int nextToneChangeX);
+	void addCurrentTone(GraphicsWrapper g, String tone, int nextToneChangeX);
 
 	void addToneChange(ToneChange toneChange, int x, boolean selected, boolean highlighted);
 
 	void addToneChangeHighlight(int x);
 
-	void addCurrentFHP(Graphics2D g, FHP fhp);
+	void addCurrentFHP(GraphicsWrapper g, FHP fhp);
 
-	void addCurrentFHP(Graphics2D g, FHP fhp, int nextFHPX);
+	void addCurrentFHP(GraphicsWrapper g, FHP fhp, int nextFHPX);
 
 	void addFHP(FHP fhp, int x, boolean selected, boolean highlighted);
 
@@ -74,6 +74,6 @@ public interface HighwayDrawer {
 
 	void addHandShapeHighlight(int x, int length);
 
-	void draw(Graphics2D g);
+	void draw(GraphicsWrapper g);
 
 }

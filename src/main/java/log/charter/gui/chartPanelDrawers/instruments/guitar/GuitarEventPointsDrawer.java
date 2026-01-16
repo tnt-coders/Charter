@@ -4,13 +4,14 @@ import static log.charter.util.CollectionUtils.filter;
 import static log.charter.util.ScalingUtils.positionToX;
 import static log.charter.util.ScalingUtils.xToPosition;
 
-import java.awt.Graphics2D;
+import log.charter.gui.chartPanelDrawers.common.GraphicsWrapper;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import log.charter.data.song.EventPoint;
 import log.charter.data.song.Phrase;
+import log.charter.data.song.SectionType;
 import log.charter.data.song.position.FractionalPosition;
 import log.charter.data.types.PositionType;
 import log.charter.gui.chartPanelDrawers.data.FrameData;
@@ -26,7 +27,7 @@ public class GuitarEventPointsDrawer {
 		return sections.isEmpty() ? null : sections.get(sections.size() - 1);
 	}
 
-	private static void drawCurrentSection(final Graphics2D g, final HighwayDrawer highwayDrawer,
+	private static void drawCurrentSection(final GraphicsWrapper g, final HighwayDrawer highwayDrawer,
 			final List<EventPoint> eventPoints, final FractionalPosition time, final int nextEventPointX) {
 		final EventPoint section = findCurrentSection(eventPoints, time);
 		if (section == null) {
@@ -36,7 +37,7 @@ public class GuitarEventPointsDrawer {
 		highwayDrawer.addCurrentSection(g, section.section, nextEventPointX);
 	}
 
-	private static void drawCurrentSection(final Graphics2D g, final HighwayDrawer highwayDrawer,
+	private static void drawCurrentSection(final GraphicsWrapper g, final HighwayDrawer highwayDrawer,
 			final List<EventPoint> eventPoints, final FractionalPosition time) {
 		final EventPoint section = findCurrentSection(eventPoints, time);
 		if (section == null) {
@@ -53,7 +54,7 @@ public class GuitarEventPointsDrawer {
 		return sections.isEmpty() ? null : sections.get(sections.size() - 1);
 	}
 
-	private static void drawCurrentPhrase(final Graphics2D g, final HighwayDrawer highwayDrawer,
+	private static void drawCurrentPhrase(final GraphicsWrapper g, final HighwayDrawer highwayDrawer,
 			final Map<String, Phrase> phrases, final List<EventPoint> eventPoints, final FractionalPosition time,
 			final int nextEventPointX) {
 		final EventPoint section = findCurrentPhrase(eventPoints, time);
@@ -64,7 +65,7 @@ public class GuitarEventPointsDrawer {
 		highwayDrawer.addCurrentPhrase(g, phrases.get(section.phrase), section.phrase, nextEventPointX);
 	}
 
-	private static void drawCurrentPhrase(final Graphics2D g, final HighwayDrawer highwayDrawer,
+	private static void drawCurrentPhrase(final GraphicsWrapper g, final HighwayDrawer highwayDrawer,
 			final Map<String, Phrase> phrases, final List<EventPoint> eventPoints, final FractionalPosition time) {
 		final EventPoint section = findCurrentPhrase(eventPoints, time);
 		if (section == null) {

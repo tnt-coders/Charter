@@ -14,7 +14,6 @@ import static log.charter.gui.chartPanelDrawers.drawableShapes.DrawableShape.str
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -29,8 +28,10 @@ import log.charter.util.collections.ArrayList2;
 import log.charter.util.data.IntRange;
 import log.charter.util.data.Position2D;
 
+import log.charter.gui.chartPanelDrawers.common.GraphicsWrapper;
+
 class SquareHighwayDrawer extends DefaultHighwayDrawer {
-	public SquareHighwayDrawer(final Graphics2D g, final int strings, final double time) {
+	public SquareHighwayDrawer(final GraphicsWrapper g, final int strings, final double time) {
 		super(g, strings, time);
 	}
 

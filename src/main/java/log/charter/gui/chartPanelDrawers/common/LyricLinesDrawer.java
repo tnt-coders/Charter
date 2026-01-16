@@ -7,7 +7,6 @@ import static log.charter.util.ScalingUtils.positionToX;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics2D;
 
 import log.charter.data.ChartData;
 import log.charter.data.config.ChartPanelColors.ColorLabel;
@@ -45,7 +44,7 @@ public class LyricLinesDrawer {
 			texts.add(new Text(textPosition, lyricLineFont, text, color));
 		}
 
-		public void draw(final Graphics2D g) {
+		public void draw(final GraphicsWrapper g) {
 			reloadGraphics();
 			backgrounds.draw(g);
 			texts.draw(g);

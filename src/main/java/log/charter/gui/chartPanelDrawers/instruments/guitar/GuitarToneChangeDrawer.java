@@ -4,7 +4,7 @@ import static log.charter.util.CollectionUtils.filter;
 import static log.charter.util.ScalingUtils.positionToX;
 import static log.charter.util.ScalingUtils.xToPosition;
 
-import java.awt.Graphics2D;
+import log.charter.gui.chartPanelDrawers.common.GraphicsWrapper;
 import java.util.List;
 import java.util.Set;
 
@@ -25,13 +25,13 @@ public class GuitarToneChangeDrawer {
 		return tones.isEmpty() ? baseTone : tones.get(tones.size() - 1).toneName;
 	}
 
-	private static void drawCurrentTone(final Graphics2D g, final HighwayDrawer highwayDrawer, final String baseTone,
+	private static void drawCurrentTone(final GraphicsWrapper g, final HighwayDrawer highwayDrawer, final String baseTone,
 			final List<ToneChange> toneChanges, final FractionalPosition time, final int nextEventPointX) {
 		final String tone = findCurrentTone(baseTone, toneChanges, time);
 		highwayDrawer.addCurrentTone(g, tone, nextEventPointX);
 	}
 
-	private static void drawCurrentTone(final Graphics2D g, final HighwayDrawer highwayDrawer, final String baseTone,
+	private static void drawCurrentTone(final GraphicsWrapper g, final HighwayDrawer highwayDrawer, final String baseTone,
 			final List<ToneChange> toneChanges, final FractionalPosition time) {
 		final String tone = findCurrentTone(baseTone, toneChanges, time);
 		highwayDrawer.addCurrentTone(g, tone);
@@ -83,5 +83,4 @@ public class GuitarToneChangeDrawer {
 
 		drawHighlightedPositions(highwayDrawer, frameData.time, frameData.highlightData);
 	}
-
 }

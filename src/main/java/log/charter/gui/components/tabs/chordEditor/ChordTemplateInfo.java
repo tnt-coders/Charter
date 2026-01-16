@@ -22,6 +22,7 @@ import log.charter.data.config.ChartPanelColors.ColorLabel;
 import log.charter.data.config.ChartPanelColors.StringColorLabelType;
 import log.charter.data.config.values.InstrumentConfig;
 import log.charter.data.song.ChordTemplate;
+import log.charter.gui.chartPanelDrawers.common.SwingGraphicsWrapper;
 import log.charter.gui.chartPanelDrawers.drawableShapes.CenteredText;
 import log.charter.gui.components.preview3D.glUtils.Point2D;
 import log.charter.util.ColorUtils;
@@ -123,10 +124,11 @@ public class ChordTemplateInfo extends JComponent implements MouseListener {
 	}
 
 	private void drawChordName(final Graphics2D g, final ChordTemplate chordTemplate, final int strings) {
+		final SwingGraphicsWrapper wrapper = new SwingGraphicsWrapper(g);
 		final Color lowestStringColor = getStringBasedColor(StringColorLabelType.NOTE, chordTemplate.getLowestString(),
 				strings);
 		final String chordName = "[%d] %s".formatted(chordTemplateId, chordTemplate.chordName);
-		final Point2D expectedTextSize = CenteredText.getExpectedSize(g, chordNameFont, chordName);
+		final Point2D expectedTextSize = CenteredText.getExpectedSize(wrapper, chordNameFont, chordName);
 		final int x = 60 + strings * 20;
 		final float y = (float) (getHeight() / 2 + expectedTextSize.y / 2);
 
@@ -136,6 +138,7 @@ public class ChordTemplateInfo extends JComponent implements MouseListener {
 	}
 
 	private void drawDescription(final Graphics2D g, final ChordTemplate chordTemplate, final int strings) {
+		final SwingGraphicsWrapper wrapper = new SwingGraphicsWrapper(g);
 		for (int string = 0; string < strings; string++) {
 			final int x = 50 + string * 20;
 			final Color stringColor = getStringBasedColor(StringColorLabelType.NOTE, string, strings);
@@ -144,8 +147,8 @@ public class ChordTemplateInfo extends JComponent implements MouseListener {
 			final Integer fingerId = chordTemplate.fingers.get(string);
 			final String finger = ChordTemplate.fingerNames.getOrDefault(fingerId, "-");
 
-			new CenteredText(new Position2D(x, 18), fretsFont, fret, stringColor).draw(g);
-			new CenteredText(new Position2D(x, 32), fretsFont, finger, stringColor).draw(g);
+			new CenteredText(new Position2D(x, 18), fretsFont, fret, stringColor).draw(wrapper);
+			new CenteredText(new Position2D(x, 32), fretsFont, finger, stringColor).draw(wrapper);
 		}
 	}
 

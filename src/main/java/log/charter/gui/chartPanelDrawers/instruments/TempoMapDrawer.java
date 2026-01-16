@@ -2,14 +2,11 @@ package log.charter.gui.chartPanelDrawers.instruments;
 
 import static log.charter.data.config.GraphicalConfig.tempoMapGhostNotesTransparency;
 
-import java.awt.AlphaComposite;
-import java.awt.Composite;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 import log.charter.gui.chartPanelDrawers.common.BeatsDrawer;
 import log.charter.gui.chartPanelDrawers.common.LyricLinesDrawer;
+import log.charter.gui.chartPanelDrawers.common.SwingGraphicsWrapper;
 import log.charter.gui.chartPanelDrawers.common.waveform.WaveFormDrawer;
 import log.charter.gui.chartPanelDrawers.data.FrameData;
 import log.charter.gui.chartPanelDrawers.instruments.guitar.GuitarDrawer;
@@ -28,28 +25,21 @@ public class TempoMapDrawer {
 		this.lyricLinesDrawer = lyricLinesDrawer;
 	}
 
-	private void drawWithAlpha(final Graphics2D g, final BufferedImage image, final float alpha) {
-		final Composite previousComposite = g.getComposite();
-		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
-		g.drawImage(image, 0, 0, null);
-		g.setComposite(previousComposite);
-	}
-
 	private void drawGhostNotes(final FrameData frameData) {
 		if (tempoMapGhostNotesTransparency <= 0) {
 			return;
 		}
 
-		final Rectangle bounds = frameData.g.getClipBounds();
-		final BufferedImage image = new BufferedImage((int) bounds.getWidth(), (int) bounds.getHeight(),
-				BufferedImage.TYPE_INT_ARGB);
-		final FrameData subFrameData = frameData.spawnSubData(image.createGraphics());
+		final BufferedImage image = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_ARGB);
+		final FrameData subFrameData = frameData.spawnSubData(new SwingGraphicsWrapper(image.createGraphics()));
 
 		lyricLinesDrawer.draw(subFrameData);
 		guitarDrawer.drawGuitar(subFrameData);
 		guitarDrawer.drawStringNames(subFrameData);
 
-		drawWithAlpha(frameData.g, image, tempoMapGhostNotesTransparency);
+		frameData.g.setTransparency(tempoMapGhostNotesTransparency);
+		frameData.g.drawImage(image, 0, 0);
+		frameData.g.setTransparency(1.0f);
 	}
 
 	public void draw(final FrameData frameData) {

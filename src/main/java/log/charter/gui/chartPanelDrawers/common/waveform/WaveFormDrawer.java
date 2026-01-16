@@ -9,12 +9,12 @@ import static log.charter.util.ScalingUtils.positionToX;
 import static log.charter.util.ScalingUtils.xToPosition;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.util.List;
 
 import log.charter.data.config.ChartPanelColors;
 import log.charter.data.config.ZoomUtils;
 import log.charter.gui.ChartPanel;
+import log.charter.gui.chartPanelDrawers.common.GraphicsWrapper;
 import log.charter.gui.chartPanelDrawers.data.FrameData;
 import log.charter.gui.components.toolbar.ChartToolbar;
 import log.charter.services.data.ProjectAudioHandler;
@@ -70,7 +70,7 @@ public class WaveFormDrawer {
 		return drawWaveForm || modeManager.getMode() == EditMode.TEMPO_MAP;
 	}
 
-	private void drawFromMap(final Graphics g, final double time) {
+	private void drawFromMap(final GraphicsWrapper g, final double time) {
 		final WaveformMap map = this.map;
 		if (map == null) {
 			return;
@@ -114,7 +114,7 @@ public class WaveFormDrawer {
 		}
 	}
 
-	private void drawFull(final Graphics g, final double time) {
+	private void drawFull(final GraphicsWrapper g, final double time) {
 		final AudioData audio = projectAudioHandler.getAudio();
 		final float timeToFrameMultiplier = audio.format.getFrameRate() / 1000;
 

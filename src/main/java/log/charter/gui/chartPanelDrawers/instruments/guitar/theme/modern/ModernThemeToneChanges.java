@@ -7,8 +7,8 @@ import static log.charter.gui.chartPanelDrawers.common.DrawerUtils.toneChangeY;
 import static log.charter.gui.chartPanelDrawers.drawableShapes.DrawableShape.lineVertical;
 import static log.charter.gui.chartPanelDrawers.drawableShapes.DrawableShape.strokedRectangle;
 
+import log.charter.gui.chartPanelDrawers.common.GraphicsWrapper;
 import java.awt.Font;
-import java.awt.Graphics2D;
 
 import log.charter.data.config.ChartPanelColors.ColorLabel;
 import log.charter.data.song.ToneChange;
@@ -48,7 +48,7 @@ public class ModernThemeToneChanges implements ThemeToneChanges {
 	}
 
 	@Override
-	public void addCurrentTone(final Graphics2D g, final String tone, final int nextToneChangeX) {
+	public void addCurrentTone(final GraphicsWrapper g, final String tone, final int nextToneChangeX) {
 		if (nextToneChangeX <= 0) {
 			return;
 		}
@@ -61,7 +61,7 @@ public class ModernThemeToneChanges implements ThemeToneChanges {
 	}
 
 	@Override
-	public void addCurrentTone(final Graphics2D g, final String tone) {
+	public void addCurrentTone(final GraphicsWrapper g, final String tone) {
 		data.sectionsAndPhrases.add(generateText(tone, 0));
 	}
 

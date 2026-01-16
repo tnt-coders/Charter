@@ -2,25 +2,28 @@ package log.charter.gui;
 
 import static log.charter.gui.chartPanelDrawers.common.DrawerUtils.editAreaHeight;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.Dimension;
 import java.awt.KeyboardFocusManager;
 
-import javax.swing.JComponent;
-
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import log.charter.data.ChartData;
 import log.charter.gui.chartPanelDrawers.ArrangementDrawer;
 import log.charter.gui.chartPanelDrawers.common.BackgroundDrawer;
+import log.charter.gui.chartPanelDrawers.common.FXGraphicsWrapper;
 import log.charter.gui.chartPanelDrawers.common.MarkerDrawer;
-import log.charter.gui.chartPanelDrawers.common.SwingGraphicsWrapper;
 import log.charter.services.CharterContext;
 import log.charter.services.CharterContext.Initiable;
 import log.charter.services.data.ChartTimeHandler;
 import log.charter.services.mouseAndKeyboard.KeyboardHandler;
 import log.charter.services.mouseAndKeyboard.MouseHandler;
 
-public class ChartPanel extends JComponent implements Initiable {
-	private static final long serialVersionUID = -3439446235287039031L;
+public class ChartPanelFX extends JFXPanel implements Initiable {
+	private static final long serialVersionUID = 1L;
 
 	private CharterContext charterContext;
 	private ChartData chartData;
@@ -32,10 +35,28 @@ public class ChartPanel extends JComponent implements Initiable {
 	private final BackgroundDrawer backgroundDrawer = new BackgroundDrawer();
 	private final MarkerDrawer markerDrawer = new MarkerDrawer();
 
-	public ChartPanel() {
+	private Canvas canvas;
+
+	public ChartPanelFX() {
 		super();
 
-		setSize(getWidth(), editAreaHeight);
+		setPreferredSize(new Dimension(getWidth(), editAreaHeight));
+
+		Platform.runLater(this::initFX);
+	}
+
+	private void initFX() {
+		canvas = new Canvas(getWidth(), editAreaHeight);
+		final Group root = new Group();
+		root.getChildren().add(canvas);
+		final Scene scene = new Scene(root);
+		setScene(scene);
+
+		canvas.widthProperty().bind(scene.widthProperty());
+		canvas.heightProperty().bind(scene.heightProperty());
+
+		canvas.widthProperty().addListener(o -> render());
+		canvas.heightProperty().addListener(o -> render());
 	}
 
 	@Override
@@ -52,29 +73,34 @@ public class ChartPanel extends JComponent implements Initiable {
 		addMouseWheelListener(mouseHandler);
 		addKeyListener(keyboardHandler);
 
-		setDoubleBuffered(true);
 		setFocusable(true);
-		setFocusTraversalKeysEnabled(false);
 	}
 
-	private void paintComponent2D(final Graphics2D g) {
-		final double time = chartTimeHandler.time();
-		final SwingGraphicsWrapper wrapper = new SwingGraphicsWrapper(g);
-
-		backgroundDrawer.draw(wrapper, time);
-
-		if (chartData.isEmpty) {
+	public void render() {
+		if (canvas == null) {
 			return;
 		}
 
-		arrangementDrawer.draw(wrapper, time);
-		markerDrawer.draw(wrapper, time);
+		Platform.runLater(() -> {
+			final GraphicsContext gc = canvas.getGraphicsContext2D();
+			final FXGraphicsWrapper wrapper = new FXGraphicsWrapper(gc);
+
+			final double time = chartTimeHandler.time();
+
+			backgroundDrawer.draw(wrapper, time);
+
+			if (chartData.isEmpty) {
+				return;
+			}
+
+			arrangementDrawer.draw(wrapper, time);
+			markerDrawer.draw(wrapper, time);
+		});
 	}
 
 	@Override
-	public void paintComponent(final Graphics g) {
-		if (g instanceof Graphics2D) {
-			paintComponent2D((Graphics2D) g);
-		}
+	public void repaint() {
+		render();
+		super.repaint();
 	}
 }

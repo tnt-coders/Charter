@@ -10,8 +10,8 @@ import static log.charter.gui.chartPanelDrawers.drawableShapes.DrawableShape.fil
 import static log.charter.gui.chartPanelDrawers.drawableShapes.DrawableShape.lineVertical;
 import static log.charter.util.CollectionUtils.map;
 
+import log.charter.gui.chartPanelDrawers.common.GraphicsWrapper;
 import java.awt.Font;
-import java.awt.Graphics2D;
 
 import log.charter.data.config.ChartPanelColors.ColorLabel;
 import log.charter.data.song.EventPoint;
@@ -60,12 +60,12 @@ public class ModernThemeEvents implements ThemeEvents {
 	}
 
 	@Override
-	public void addCurrentSection(final Graphics2D g, final SectionType section) {
+	public void addCurrentSection(final GraphicsWrapper g, final SectionType section) {
 		data.sectionsAndPhrases.add(generateSectionText(section, 0));
 	}
 
 	@Override
-	public void addCurrentSection(final Graphics2D g, final SectionType section, final int nextSectionX) {
+	public void addCurrentSection(final GraphicsWrapper g, final SectionType section, final int nextSectionX) {
 		final ShapeSize expectedSize = TextWithBackground.getExpectedSize(g, eventFont, section.label.label(),
 				sectionTextSpace);
 		final int x = min(0, nextSectionX - expectedSize.width);
@@ -79,12 +79,12 @@ public class ModernThemeEvents implements ThemeEvents {
 	}
 
 	@Override
-	public void addCurrentPhrase(final Graphics2D g, final Phrase phrase, final String phraseName) {
+	public void addCurrentPhrase(final GraphicsWrapper g, final Phrase phrase, final String phraseName) {
 		data.sectionsAndPhrases.add(generatePhraseText(generatePhraseLabel(phrase, phraseName), 0));
 	}
 
 	@Override
-	public void addCurrentPhrase(final Graphics2D g, final Phrase phrase, final String phraseName,
+	public void addCurrentPhrase(final GraphicsWrapper g, final Phrase phrase, final String phraseName,
 			final int nextPhraseX) {
 		if (nextPhraseX <= 0) {
 			return;
@@ -98,7 +98,7 @@ public class ModernThemeEvents implements ThemeEvents {
 	}
 
 	@Override
-	public void addEvents(final Graphics2D g, final EventPoint eventPoint, final int x) {
+	public void addEvents(final GraphicsWrapper g, final EventPoint eventPoint, final int x) {
 		if (!eventPoint.events.isEmpty()) {
 			final String text = String.join(", ", map(eventPoint.events, event -> event.label));
 			data.sectionsAndPhrases.add(generateText(text, x, eventNamesY, ColorLabel.EVENT_BG));
@@ -106,7 +106,7 @@ public class ModernThemeEvents implements ThemeEvents {
 	}
 
 	@Override
-	public void addEventPoint(final Graphics2D g, final EventPoint eventPoint, final Phrase phrase, final int x,
+	public void addEventPoint(final GraphicsWrapper g, final EventPoint eventPoint, final Phrase phrase, final int x,
 			final boolean selected, final boolean highlighted) {
 		if (eventPoint.section != null) {
 			final String text = eventPoint.section.label.label();

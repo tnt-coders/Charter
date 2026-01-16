@@ -1,4 +1,11 @@
-CALL mvn -P lwjgl-natives-windows-amd64^
+@echo off
+set MVN_CMD=mvn
+where %MVN_CMD% >nul 2>nul
+if %errorlevel% neq 0 (
+    set MVN_CMD="C:\Program Files\JetBrains\IntelliJ IDEA 2025.3.1.1\plugins\maven\lib\maven3\bin\mvn.cmd"
+)
+
+CALL %MVN_CMD% -P lwjgl-natives-windows-amd64^
  -Dlwjgl.natives=natives-windows^
  clean package
 

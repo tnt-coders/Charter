@@ -310,7 +310,7 @@ public class GuitarDrawer {
 
 		final int width = fontSize * 5 / 3;
 
-		frameData.g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		frameData.g.setAntialiasing(true);
 		frameData.g.setColor(ColorLabel.LANE.color());
 		frameData.g.fillRect(0, lanesTop, width + 3, lanesHeight + 1);
 

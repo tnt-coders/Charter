@@ -12,7 +12,7 @@ import log.charter.data.config.Localization.Label;
 import log.charter.data.config.SystemType;
 import log.charter.data.config.values.DebugConfig;
 import log.charter.data.undoSystem.UndoSystem;
-import log.charter.gui.ChartPanel;
+import log.charter.gui.ChartPanelFX;
 import log.charter.gui.CharterFrame;
 import log.charter.gui.chartPanelDrawers.common.BeatsDrawer;
 import log.charter.gui.chartPanelDrawers.common.waveform.WaveFormDrawer;
@@ -132,7 +132,7 @@ public class CharterContext {
 	private final CharterFrame charterFrame = new CharterFrame();
 	private final CharterMenuBar charterMenuBar = new CharterMenuBar();
 	private final ChartToolbar chartToolbar = new ChartToolbar();
-	private final ChartPanel chartPanel = new ChartPanel();
+	private final ChartPanelFX chartPanel = new ChartPanelFX();
 	private final ChartMap chartMap = new ChartMap();
 	private final ChordTemplatesEditorTab chordTemplatesEditorTab = new ChordTemplatesEditorTab();
 	private final CurrentSelectionEditor currentSelectionEditor = new CurrentSelectionEditor();

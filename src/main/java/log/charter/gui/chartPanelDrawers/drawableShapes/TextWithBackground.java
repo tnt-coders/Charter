@@ -2,16 +2,13 @@ package log.charter.gui.chartPanelDrawers.drawableShapes;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.Shape;
-import java.awt.geom.RoundRectangle2D;
 
 import log.charter.data.config.ChartPanelColors.ColorLabel;
+import log.charter.gui.chartPanelDrawers.common.GraphicsWrapper;
 import log.charter.util.data.Position2D;
 
 public class TextWithBackground implements DrawableShape {
-	public static ShapeSize getExpectedSize(final Graphics2D g, final Font font, final String text, final int space) {
+	public static ShapeSize getExpectedSize(final GraphicsWrapper g, final Font font, final String text, final int space) {
 		return Text.getExpectedSize(g, font, text).resizeBy(4 * space, 4 * space + 1);
 	}
 
@@ -52,21 +49,18 @@ public class TextWithBackground implements DrawableShape {
 	}
 
 	@Override
-	public void draw(final Graphics2D g) {
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	public void draw(final GraphicsWrapper g) {
+		g.setAntialiasing(true);
 		draw(g, getPositionWithSize(g));
 	}
 
-	public ShapePositionWithSize getPositionWithSize(final Graphics2D g) {
+	public ShapePositionWithSize getPositionWithSize(final GraphicsWrapper g) {
 		return text.getPositionWithSize(g).resized(-2 * space + 2, -2 * space, 4 * space, 4 * space + 1);
 	}
 
-	public void draw(final Graphics2D g, final ShapePositionWithSize positionAndSize) {
-		final Shape roundedRect = new RoundRectangle2D.Double(positionAndSize.x, positionAndSize.y,
-				positionAndSize.width, positionAndSize.height, 5, 5);
-
+	public void draw(final GraphicsWrapper g, final ShapePositionWithSize positionAndSize) {
 		g.setColor(backgroundColor);
-		g.fill(roundedRect);
+		g.fillRoundRect(positionAndSize.x, positionAndSize.y, positionAndSize.width, positionAndSize.height, 5, 5);
 
 		text.draw(g, positionAndSize.resized(2 * space, 2 * space, -4 * space, -4 * space - 1));
 	}

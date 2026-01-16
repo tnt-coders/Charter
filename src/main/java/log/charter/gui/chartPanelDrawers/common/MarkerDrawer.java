@@ -3,11 +3,7 @@ package log.charter.gui.chartPanelDrawers.common;
 import static log.charter.gui.chartPanelDrawers.common.DrawerUtils.beatTextY;
 import static log.charter.gui.chartPanelDrawers.common.DrawerUtils.lanesBottom;
 
-import java.awt.BasicStroke;
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Polygon;
 
 import log.charter.data.config.ChartPanelColors.ColorLabel;
 import log.charter.data.config.GraphicalConfig;
@@ -18,20 +14,18 @@ public class MarkerDrawer {
 	private static final int arrowSize = 8;
 	private static final Font font = new Font(Font.DIALOG, Font.PLAIN, 10);
 
-	private void drawLine(final Graphics2D g, final int x) {
-		g.setStroke(new BasicStroke(1));
+	private void drawLine(final GraphicsWrapper g, final int x) {
+		g.setStroke(1);
 		g.drawLine(x, beatTextY - 5, x, lanesBottom);
 	}
 
-	private void drawArrow(final Graphics2D g, final int x) {
-		final Polygon arrowhead = new Polygon();
-		arrowhead.addPoint(x - arrowSize / 2, beatTextY - 10);
-		arrowhead.addPoint(x + arrowSize / 2, beatTextY - 10);
-		arrowhead.addPoint(x, beatTextY - 10 + arrowSize);
-		g.fillPolygon(arrowhead);
+	private void drawArrow(final GraphicsWrapper g, final int x) {
+		final int[] xPoints = { x - arrowSize / 2, x + arrowSize / 2, x };
+		final int[] yPoints = { beatTextY - 10, beatTextY - 10, beatTextY - 10 + arrowSize };
+		g.fillPolygon(xPoints, yPoints, 3);
 	}
 
-	private void drawTime(final Graphics2D g, final int x, final double time) {
+	private void drawTime(final GraphicsWrapper g, final int x, final double time) {
 		final int hours = (int) (time / 3_600_000);
 		final int minutes = ((int) (time / 60_000)) % 60;
 		final int seconds = ((int) time / 1000) % 60;
@@ -44,14 +38,13 @@ public class MarkerDrawer {
 				ColorLabel.MARKER_TIME_BACKGROUND).draw(g);
 	}
 
-	public void draw(final Graphics g, final double time) {
+	public void draw(final GraphicsWrapper g, final double time) {
 		final int x = GraphicalConfig.markerOffset;
 
 		g.setColor(ColorLabel.MARKER.color());
 
-		final Graphics2D g2 = (Graphics2D) g;
-		drawLine(g2, x);
-		drawArrow(g2, x);
-		drawTime(g2, x, time);
+		drawLine(g, x);
+		drawArrow(g, x);
+		drawTime(g, x, time);
 	}
 }

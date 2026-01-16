@@ -1,6 +1,6 @@
 package log.charter.gui.chartPanelDrawers.instruments.guitar.theme.modern;
 
-import java.awt.Graphics2D;
+import log.charter.gui.chartPanelDrawers.common.GraphicsWrapper;
 import java.util.Optional;
 
 import log.charter.data.song.ChordTemplate;
@@ -37,7 +37,7 @@ public class ModernHighwayDrawer implements HighwayDrawer {
 	private final ModernThemeNotes notes;
 	private final ModernThemeHandShapes handShapes;
 
-	public ModernHighwayDrawer(final Graphics2D g, final int strings, final double time) {
+	public ModernHighwayDrawer(final GraphicsWrapper g, final int strings, final double time) {
 		data = new HighwayDrawData(g, strings, time);
 
 		themeEvents = new ModernThemeEvents(data);
@@ -48,33 +48,33 @@ public class ModernHighwayDrawer implements HighwayDrawer {
 	}
 
 	@Override
-	public void addCurrentSection(final Graphics2D g, final SectionType section) {
+	public void addCurrentSection(final GraphicsWrapper g, final SectionType section) {
 		themeEvents.addCurrentSection(g, section);
 	}
 
 	@Override
-	public void addCurrentSection(final Graphics2D g, final SectionType section, final int nextSectionX) {
+	public void addCurrentSection(final GraphicsWrapper g, final SectionType section, final int nextSectionX) {
 		themeEvents.addCurrentSection(g, section, nextSectionX);
 	}
 
 	@Override
-	public void addCurrentPhrase(final Graphics2D g, final Phrase phrase, final String phraseName) {
+	public void addCurrentPhrase(final GraphicsWrapper g, final Phrase phrase, final String phraseName) {
 		themeEvents.addCurrentPhrase(g, phrase, phraseName);
 	}
 
 	@Override
-	public void addCurrentPhrase(final Graphics2D g, final Phrase phrase, final String phraseName,
+	public void addCurrentPhrase(final GraphicsWrapper g, final Phrase phrase, final String phraseName,
 			final int nextSectionX) {
 		themeEvents.addCurrentPhrase(g, phrase, phraseName, nextSectionX);
 	}
 
 	@Override
-	public void addEvents(final Graphics2D g, final EventPoint eventPoint, final int x) {
+	public void addEvents(final GraphicsWrapper g, final EventPoint eventPoint, final int x) {
 		themeEvents.addEvents(g, eventPoint, x);
 	}
 
 	@Override
-	public void addEventPoint(final Graphics2D g, final EventPoint eventPoint, final Phrase phrase, final int x,
+	public void addEventPoint(final GraphicsWrapper g, final EventPoint eventPoint, final Phrase phrase, final int x,
 			final boolean selected, final boolean highlighted) {
 		themeEvents.addEventPoint(g, eventPoint, phrase, x, selected, highlighted);
 	}
@@ -85,12 +85,12 @@ public class ModernHighwayDrawer implements HighwayDrawer {
 	}
 
 	@Override
-	public void addCurrentTone(final Graphics2D g, final String tone) {
+	public void addCurrentTone(final GraphicsWrapper g, final String tone) {
 		toneChanges.addCurrentTone(g, tone);
 	}
 
 	@Override
-	public void addCurrentTone(final Graphics2D g, final String tone, final int nextToneChangeX) {
+	public void addCurrentTone(final GraphicsWrapper g, final String tone, final int nextToneChangeX) {
 		toneChanges.addCurrentTone(g, tone, nextToneChangeX);
 	}
 
@@ -106,12 +106,12 @@ public class ModernHighwayDrawer implements HighwayDrawer {
 	}
 
 	@Override
-	public void addCurrentFHP(final Graphics2D g, final FHP fhp) {
+	public void addCurrentFHP(final GraphicsWrapper g, final FHP fhp) {
 		fhps.addCurrentFHP(g, fhp);
 	}
 
 	@Override
-	public void addCurrentFHP(final Graphics2D g, final FHP fhp, final int nextFHPX) {
+	public void addCurrentFHP(final GraphicsWrapper g, final FHP fhp, final int nextFHPX) {
 		fhps.addCurrentFHP(g, fhp, nextFHPX);
 	}
 
@@ -158,7 +158,7 @@ public class ModernHighwayDrawer implements HighwayDrawer {
 	}
 
 	@Override
-	public void draw(final Graphics2D g) {
-		data.draw();
+	public void draw(final GraphicsWrapper g) {
+		data.draw(g);
 	}
 }

@@ -1,10 +1,7 @@
 package log.charter.gui.chartPanelDrawers.drawableShapes;
 
 import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Polygon;
-import java.awt.RenderingHints;
-
+import log.charter.gui.chartPanelDrawers.common.GraphicsWrapper;
 import log.charter.util.data.Position2D;
 
 class FilledDiamond implements DrawableShape {
@@ -19,14 +16,12 @@ class FilledDiamond implements DrawableShape {
 	}
 
 	@Override
-	public void draw(final Graphics2D g) {
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	public void draw(final GraphicsWrapper g) {
+		g.setAntialiasing(true);
 		g.setColor(color);
 
-		final Polygon polygon = new Polygon(
-				new int[] { position.x - radius, position.x, position.x + radius, position.x }, //
-				new int[] { position.y, position.y - radius, position.y, position.y + radius }, //
-				4);
-		g.fillPolygon(polygon);
+		final int[] xPoints = new int[] { position.x - radius, position.x, position.x + radius, position.x };
+		final int[] yPoints = new int[] { position.y, position.y - radius, position.y, position.y + radius };
+		g.fillPolygon(xPoints, yPoints, 4);
 	}
 }

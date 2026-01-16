@@ -1,11 +1,8 @@
 package log.charter.gui.chartPanelDrawers.drawableShapes;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-
 import log.charter.data.config.ChartPanelColors.ColorLabel;
+import log.charter.gui.chartPanelDrawers.common.GraphicsWrapper;
 import log.charter.util.data.Position2D;
 
 public class StrokedTriangle implements DrawableShape {
@@ -33,10 +30,10 @@ public class StrokedTriangle implements DrawableShape {
 	}
 
 	@Override
-	public void draw(final Graphics2D g) {
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	public void draw(final GraphicsWrapper g) {
+		g.setAntialiasing(true);
 		g.setColor(color);
-		g.setStroke(new BasicStroke(thickness));
-		g.drawPolygon(new int[] { a.x, b.x, c.x }, new int[] { a.y, b.y, c.y }, 3);
+		g.setStroke(thickness);
+		g.drawPolyline(new int[] { a.x, b.x, c.x, a.x }, new int[] { a.y, b.y, c.y, a.y }, 4);
 	}
 }

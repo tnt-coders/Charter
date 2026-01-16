@@ -21,6 +21,7 @@ import log.charter.data.config.SystemType;
 import log.charter.data.config.values.WindowStateConfig;
 import log.charter.data.song.Arrangement;
 import log.charter.gui.chartPanelDrawers.common.DrawerUtils;
+import log.charter.gui.ChartPanelFX;
 import log.charter.gui.components.containers.CharterScrollPane;
 import log.charter.gui.components.containers.CharterTabbedPane;
 import log.charter.gui.components.containers.CharterTabbedPane.Tab;
@@ -66,7 +67,7 @@ public class CharterFrame extends JFrame implements Initiable {
 
 	private CharterMenuBar charterMenuBar;
 	private ChartToolbar chartToolbar;
-	private ChartPanel chartPanel;
+	private ChartPanelFX chartPanel;
 	private ChartMap chartMap;
 	private CharterTabbedPane tabs;
 
@@ -151,10 +152,10 @@ public class CharterFrame extends JFrame implements Initiable {
 		final int height = WindowStateConfig.height - insets.top - insets.bottom - charterMenuBar.getHeight();
 
 		final List<Pair<Component, Integer>> componentHeights = asList(//
-				new Pair<>(chartToolbar, chartToolbar.getHeight()), //
-				new Pair<>(chartPanel, DrawerUtils.editAreaHeight), //
-				new Pair<>(chartMap, DrawerUtils.chartMapHeight), //
-				new Pair<>(tabs,
+				new Pair<>((Component) chartToolbar, chartToolbar.getHeight()), //
+				new Pair<>((Component) chartPanel, DrawerUtils.editAreaHeight), //
+				new Pair<>((Component) chartMap, DrawerUtils.chartMapHeight), //
+				new Pair<>((Component) tabs,
 						height - chartToolbar.getHeight() - DrawerUtils.editAreaHeight - DrawerUtils.chartMapHeight));
 
 		int y = 0;

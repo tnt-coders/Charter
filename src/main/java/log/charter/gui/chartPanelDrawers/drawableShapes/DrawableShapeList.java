@@ -1,6 +1,6 @@
 package log.charter.gui.chartPanelDrawers.drawableShapes;
 
-import java.awt.Graphics2D;
+import log.charter.gui.chartPanelDrawers.common.GraphicsWrapper;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +11,7 @@ public class DrawableShapeList {
 		list.add(shape);
 	}
 
-	public void draw(final Graphics2D g) {
+	public void draw(final GraphicsWrapper g) {
 		list.forEach(shape -> shape.draw(g));
 	}
 }

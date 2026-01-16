@@ -11,8 +11,6 @@ import static log.charter.util.ScalingUtils.xToPosition;
 import static log.charter.util.Utils.formatTime;
 
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 
 import log.charter.data.ChartData;
 import log.charter.data.config.ChartPanelColors.ColorLabel;
@@ -54,33 +52,33 @@ public class BackgroundDrawer {
 	private ChartTimeHandler chartTimeHandler;
 	private ModeManager modeManager;
 
-	private void drawBackground(final Graphics g) {
+	private void drawBackground(final GraphicsWrapper g) {
 		g.setColor(ColorLabel.BASE_BG_0.color());
 		g.fillRect(0, 0, chartPanel.getWidth(), chartPanel.getHeight());
 	}
 
-	private void drawEventPointsBackground(final Graphics g) {
+	private void drawEventPointsBackground(final GraphicsWrapper g) {
 		g.setColor(ColorLabel.BASE_BG_2.color());
 		final int y = DrawerUtils.sectionNamesY;
 		final int h = DrawerUtils.toneChangeY - y;
 		g.fillRect(0, y, chartPanel.getWidth(), h);
 	}
 
-	private void drawToneChangesBackground(final Graphics g) {
+	private void drawToneChangesBackground(final GraphicsWrapper g) {
 		g.setColor(ColorLabel.BASE_BG_1.color());
 		final int y = DrawerUtils.toneChangeY;
 		final int h = DrawerUtils.fhpY - y;
 		g.fillRect(0, y, chartPanel.getWidth(), h);
 	}
 
-	private void drawFHPsBackground(final Graphics g) {
+	private void drawFHPsBackground(final GraphicsWrapper g) {
 		g.setColor(ColorLabel.BASE_BG_0.color());
 		final int y = DrawerUtils.fhpY;
 		final int h = DrawerUtils.lanesTop - y;
 		g.fillRect(0, y, chartPanel.getWidth(), h);
 	}
 
-	private void drawLanesBackground(final Graphics g) {
+	private void drawLanesBackground(final GraphicsWrapper g) {
 		g.setColor(ColorLabel.LANE.color());
 		g.fillRect(0, DrawerUtils.lanesTop, chartPanel.getWidth(), DrawerUtils.lanesBottom - DrawerUtils.lanesTop + 1);
 	}
@@ -98,7 +96,7 @@ public class BackgroundDrawer {
 		return jumpDistances[jumpDistances.length - 1];
 	}
 
-	private void drawTimestamp(final Graphics2D g, final double time, final int timestampTime) {
+	private void drawTimestamp(final GraphicsWrapper g, final double time, final int timestampTime) {
 		final int x = positionToX(timestampTime, time);
 		if (timestampTime % 1000 == 0) {
 			filledRectangle(new ShapePositionWithSize(x, lanesBottom + 1, 1, secondsMarkerBottom - lanesBottom - 1),
@@ -112,7 +110,7 @@ public class BackgroundDrawer {
 		}
 	}
 
-	private void drawTimeScale(final Graphics2D g, final double time) {
+	private void drawTimeScale(final GraphicsWrapper g, final double time) {
 		int timestampTime = (int) xToPosition(-20, time);
 		if (timestampTime < 0) {
 			timestampTime = 0;
@@ -128,7 +126,7 @@ public class BackgroundDrawer {
 		}
 	}
 
-	private void drawStartAndEnd(final Graphics2D g, final double time) {
+	private void drawStartAndEnd(final GraphicsWrapper g, final double time) {
 		g.setColor(ColorLabel.MARKER.color());
 		final int startX = positionToX(0, time);
 		g.drawLine(startX, lanesTop + 30, startX, lanesBottom - 30);
@@ -136,7 +134,7 @@ public class BackgroundDrawer {
 		g.drawLine(endX, lanesTop + 30, endX, lanesBottom - 30);
 	}
 
-	public void draw(final Graphics2D g, final double time) {
+	public void draw(final GraphicsWrapper g, final double time) {
 		drawBackground(g);
 
 		if (chartData.isEmpty) {

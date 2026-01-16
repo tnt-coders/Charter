@@ -1,8 +1,7 @@
 package log.charter.gui.chartPanelDrawers;
 
-import java.awt.Graphics2D;
-
 import log.charter.data.ChartData;
+import log.charter.gui.chartPanelDrawers.common.GraphicsWrapper;
 import log.charter.gui.chartPanelDrawers.common.LyricLinesDrawer;
 import log.charter.gui.chartPanelDrawers.data.FrameData;
 import log.charter.gui.chartPanelDrawers.data.HighlightData;
@@ -52,7 +51,7 @@ public class ArrangementDrawer implements Initiable {
 				mouseButtonPressReleaseHandler, mouseHandler, selectionManager);
 	}
 
-	private FrameData generateFrameData(final Graphics2D g, final double time) {
+	private FrameData generateFrameData(final GraphicsWrapper g, final double time) {
 		return new FrameData(chartData.beats().getClone().immutable, //
 				chartData.songChart.bookmarks, //
 				chartData.currentVocals(), //
@@ -66,7 +65,7 @@ public class ArrangementDrawer implements Initiable {
 				keyboardHandler.ctrl());
 	}
 
-	public void draw(final Graphics2D g, final double time) {
+	public void draw(final GraphicsWrapper g, final double time) {
 		final FrameData frameData = generateFrameData(g, time);
 
 		switch (modeManager.getMode()) {

@@ -1,10 +1,8 @@
 package log.charter.gui.chartPanelDrawers.drawableShapes;
 
 import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-
 import log.charter.data.config.ChartPanelColors.ColorLabel;
+import log.charter.gui.chartPanelDrawers.common.GraphicsWrapper;
 
 public class FilledRectangle implements DrawableShape {
 	private final ShapePositionWithSize position;
@@ -30,8 +28,8 @@ public class FilledRectangle implements DrawableShape {
 	}
 
 	@Override
-	public void draw(final Graphics2D g) {
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	public void draw(final GraphicsWrapper g) {
+		g.setAntialiasing(true);
 		g.setColor(color);
 
 		if (rounded) {

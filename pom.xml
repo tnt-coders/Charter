@@ -13,6 +13,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<lwjgl.version>3.3.6</lwjgl.version>
 		<lwjgl3-awt.version>0.1.8</lwjgl3-awt.version>
+		<javafx.version>17.0.2</javafx.version>
 	</properties>
 	
 	<repositories>
@@ -161,6 +162,26 @@
     		<groupId>com.github.psambit9791</groupId>
     		<artifactId>jdsp</artifactId>
     		<version>3.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-controls</artifactId>
+			<version>${javafx.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-swing</artifactId>
+			<version>${javafx.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-graphics</artifactId>
+			<version>${javafx.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-base</artifactId>
+			<version>${javafx.version}</version>
 		</dependency>
 	</dependencies>
 
