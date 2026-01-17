@@ -1,17 +1,21 @@
 package log.charter.gui;
 
-import static java.util.Arrays.asList;
 import static log.charter.data.config.SystemType.MAC;
 
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Insets;
-import java.awt.dnd.DropTarget;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
-import javax.swing.JFrame;
+import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import log.charter.CharterMain;
 import log.charter.data.ChartData;
@@ -32,24 +36,21 @@ import log.charter.gui.components.tabs.chordEditor.ChordTemplatesEditorTab;
 import log.charter.gui.components.tabs.errorsTab.ErrorsTab;
 import log.charter.gui.components.tabs.selectionEditor.CurrentSelectionEditor;
 import log.charter.gui.components.toolbar.ChartToolbar;
-import log.charter.gui.components.utils.ComponentUtils;
-import log.charter.gui.lookAndFeel.CharterTheme;
 import log.charter.gui.menuHandlers.CharterMenuBar;
 import log.charter.io.Logger;
 import log.charter.services.CharterContext;
 import log.charter.services.CharterContext.Initiable;
-import log.charter.services.CharterFrameComponentListener;
-import log.charter.services.CharterFrameWindowFocusListener;
-import log.charter.services.CharterFrameWindowListener;
 import log.charter.services.data.files.FileDropHandler;
 import log.charter.services.editModes.EditMode;
 import log.charter.services.editModes.ModeManager;
 import log.charter.services.mouseAndKeyboard.KeyboardHandler;
-import log.charter.util.collections.Pair;
-import net.sf.image4j.codec.ico.ICODecoder;
 
-public class CharterFrame extends JFrame implements Initiable {
-	private static final long serialVersionUID = 3603305480386377813L;
+public class CharterFrame implements Initiable {
+	private Stage stage;
+
+	private Scene scene;
+	private BorderPane root;
+	private VBox topContainer;
 
 	private ChartData chartData;
 	private CharterContext charterContext;
@@ -73,18 +74,8 @@ public class CharterFrame extends JFrame implements Initiable {
 	private boolean paintWaiting = false;
 
 	public CharterFrame() {
-		super(CharterMain.TITLE + " : " + Label.NO_PROJECT.label());
-		try {
-			final InputStream stream = this.getClass().getResourceAsStream("/icon.ico");
-			setIconImages(ICODecoder.read(stream));
-		} catch (final IOException e) {
-			Logger.error("Couldn't load icon", e);
-		}
-
-		CharterTheme.install(this);
-
-		setLayout(null);
-		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		root = new BorderPane();
+		topContainer = new VBox();
 	}
 
 	@Override
@@ -92,10 +83,6 @@ public class CharterFrame extends JFrame implements Initiable {
 		if (SystemType.not(MAC)) {
 			charterContext.initObject(preview3DPanel);
 		}
-
-		setSize(WindowStateConfig.width, WindowStateConfig.height);
-		setLocation(WindowStateConfig.x, WindowStateConfig.y);
-		setExtendedState(WindowStateConfig.extendedState);
 
 		if (SystemType.is(MAC)) {
 			tabs = new CharterTabbedPane(//
@@ -114,54 +101,129 @@ public class CharterFrame extends JFrame implements Initiable {
 					new Tab(Label.TAB_HELP, helpTab));
 		}
 
-		add(chartToolbar);
-		add(chartPanel);
-		add(chartMap);
-		add(tabs);
-
-		addComponentListener(new CharterFrameComponentListener(this));
-		addKeyListener(keyboardHandler);
-		addWindowFocusListener(new CharterFrameWindowFocusListener(keyboardHandler));
-		addWindowListener(new CharterFrameWindowListener(charterContext));
-		setDropTarget(new DropTarget(this, fileDropHandler));
-
-		setFocusTraversalKeysEnabled(false);
+		// Build layout
+		topContainer.getChildren().addAll(chartToolbar.getNode(), chartPanel.getNode(), chartMap.getNode());
+		root.setTop(charterMenuBar.getMenuBar());
+		root.setCenter(topContainer);
+		root.setBottom(tabs.getTabPane());
 	}
 
-	public void finishInitAndShow() {
-		resizeComponents();
+	public void finishInitAndShow(Stage primaryStage) {
+		this.stage = primaryStage;
 
-		validate();
-		setVisible(true);
-		setFocusable(true);
+		try {
+			final InputStream stream = this.getClass().getResourceAsStream("/icon.ico");
+			if (stream != null) {
+				stage.getIcons().add(new Image(stream));
+			}
+		} catch (final IOException e) {
+			Logger.error("Couldn't load icon", e);
+		}
+
+		stage.setTitle(CharterMain.TITLE + " : " + Label.NO_PROJECT.label());
+		stage.setWidth(WindowStateConfig.width);
+		stage.setHeight(WindowStateConfig.height);
+		stage.setX(WindowStateConfig.x);
+		stage.setY(WindowStateConfig.y);
+
+		// Handle window state (maximized, etc.)
+		if (WindowStateConfig.extendedState == java.awt.Frame.MAXIMIZED_BOTH) {
+			stage.setMaximized(true);
+		}
+
+		scene = new Scene(root, WindowStateConfig.width, WindowStateConfig.height);
+
+		// Apply CSS styling
+		applyStyling();
+
+		stage.setScene(scene);
+
+		// Set up event handlers
+		setupEventHandlers();
+
+		// Set up drag and drop
+		setupDragAndDrop();
+
+		stage.show();
+		stage.requestFocus();
+
+		resizeComponents();
+	}
+
+	private void applyStyling() {
+		// Load CSS stylesheet if it exists
+		try {
+			final String css = this.getClass().getResource("/charter-style.css").toExternalForm();
+			scene.getStylesheets().add(css);
+		} catch (Exception e) {
+			// CSS file doesn't exist yet, will be created later
+		}
+	}
+
+	private void setupEventHandlers() {
+		// Window close handler
+		stage.setOnCloseRequest(event -> {
+			event.consume();
+			charterContext.exit();
+		});
+
+		// Window resize handler
+		stage.widthProperty().addListener((obs, oldVal, newVal) -> resize());
+		stage.heightProperty().addListener((obs, oldVal, newVal) -> resize());
+
+		// Window focus handler
+		stage.focusedProperty().addListener((obs, oldVal, newVal) -> {
+			if (newVal) {
+				keyboardHandler.onFocusGained();
+			} else {
+				keyboardHandler.onFocusLost();
+			}
+		});
+
+		// Keyboard handler
+		scene.setOnKeyPressed(keyboardHandler::handleKeyPressed);
+		scene.setOnKeyReleased(keyboardHandler::handleKeyReleased);
+	}
+
+	private void setupDragAndDrop() {
+		scene.setOnDragOver((DragEvent event) -> {
+			Dragboard db = event.getDragboard();
+			if (db.hasFiles()) {
+				event.acceptTransferModes(TransferMode.COPY);
+			} else {
+				event.consume();
+			}
+		});
+
+		scene.setOnDragDropped((DragEvent event) -> {
+			Dragboard db = event.getDragboard();
+			boolean success = false;
+			if (db.hasFiles()) {
+				fileDropHandler.handleFiles(db.getFiles());
+				success = true;
+			}
+			event.setDropCompleted(success);
+			event.consume();
+		});
 	}
 
 	public void resize() {
-		WindowStateConfig.height = getHeight();
-		WindowStateConfig.width = getWidth();
-		WindowStateConfig.extendedState = getExtendedState();
+		WindowStateConfig.height = (int) stage.getHeight();
+		WindowStateConfig.width = (int) stage.getWidth();
+		WindowStateConfig.x = (int) stage.getX();
+		WindowStateConfig.y = (int) stage.getY();
+		WindowStateConfig.extendedState = stage.isMaximized() ? java.awt.Frame.MAXIMIZED_BOTH : java.awt.Frame.NORMAL;
 		Config.markChanged();
 
 		resizeComponents();
 	}
 
 	private void resizeComponents() {
-		final Insets insets = getInsets();
-		final int width = WindowStateConfig.width - insets.left - insets.right;
-		final int height = WindowStateConfig.height - insets.top - insets.bottom - charterMenuBar.getHeight();
-
-		final List<Pair<Component, Integer>> componentHeights = asList(//
-				new Pair<>(chartToolbar, chartToolbar.getHeight()), //
-				new Pair<>(chartPanel, DrawerUtils.editAreaHeight), //
-				new Pair<>(chartMap, DrawerUtils.chartMapHeight), //
-				new Pair<>(tabs,
-						height - chartToolbar.getHeight() - DrawerUtils.editAreaHeight - DrawerUtils.chartMapHeight));
-
-		int y = 0;
-		for (final Pair<Component, Integer> componentHeight : componentHeights) {
-			ComponentUtils.setComponentBoundsWithValidateRepaint(componentHeight.a, 0, y, width, componentHeight.b);
-			y += componentHeight.b;
-		}
+		// JavaFX handles most layout automatically through the BorderPane
+		// Custom sizing logic will be handled by individual components
+		chartPanel.resize();
+		chartMap.resize();
+		tabs.resize();
 	}
 
 	public void updateSizes() {
@@ -182,30 +244,43 @@ public class CharterFrame extends JFrame implements Initiable {
 		preview3DPanel.reloadTextures();
 	}
 
-	@Override
 	public void repaint() {
 		if (paintWaiting) {
 			return;
 		}
 
 		paintWaiting = true;
-		super.repaint();
 
-		if (SystemType.not(MAC) && preview3DPanel.isShowing()) {
-			preview3DPanel.repaint();
+		Platform.runLater(() -> {
+			try {
+				chartPanel.repaint();
+				chartMap.repaint();
+				helpTab.addFrameTime();
+
+				if (SystemType.not(MAC) && preview3DPanel.isShowing()) {
+					preview3DPanel.repaint();
+				}
+			} catch (final Exception e) {
+				Logger.error("Error in CharterFrame.repaint", e);
+			} finally {
+				paintWaiting = false;
+			}
+		});
+	}
+
+	public void close() {
+		if (stage != null) {
+			stage.close();
 		}
 	}
 
-	@Override
-	public void paint(final Graphics g) {
-		try {
-			super.paint(g);
-			helpTab.addFrameTime();
-		} catch (final Exception e) {
-			Logger.error("Error in CharterFrame.paint", e);
+	public Stage getStage() {
+		return stage;
+	}
+
+	public void setTitle(String title) {
+		if (stage != null) {
+			stage.setTitle(title);
 		}
-
-		paintWaiting = false;
-
 	}
 }

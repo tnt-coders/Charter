@@ -8,13 +8,13 @@ import static log.charter.gui.chartPanelDrawers.common.DrawerUtils.chartMapHeigh
 import static log.charter.util.ScalingUtils.xToTimeLength;
 import static log.charter.util.Utils.getStringPosition;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.image.BufferedImage;
+import javafx.application.Platform;
+import javafx.scene.Node;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -36,8 +36,9 @@ import log.charter.services.editModes.EditMode;
 import log.charter.services.editModes.ModeManager;
 import log.charter.util.ExitActions;
 
-public class ChartMap extends Component implements Initiable, MouseListener, MouseMotionListener {
-	private static final long serialVersionUID = 1L;
+public class ChartMap implements Initiable {
+	private Canvas canvas;
+	private GraphicsContext gc;
 
 	private ChartData chartData;
 	private CharterFrame charterFrame;
@@ -45,48 +46,68 @@ public class ChartMap extends Component implements Initiable, MouseListener, Mou
 	private ChartTimeHandler chartTimeHandler;
 	private ModeManager modeManager;
 
-	private BufferedImage background = null;
+	private WritableImage background = null;
 
 	private Thread imageMakerThread;
 
-	private BufferedImage createBackground() {
-		final BufferedImage img = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
-		final Graphics g = img.getGraphics();
+	public ChartMap() {
+		canvas = new Canvas();
+		gc = canvas.getGraphicsContext2D();
+		canvas.setHeight(chartMapHeight);
+	}
 
-		g.setColor(ColorLabel.LANE.color());
-		g.fillRect(0, 0, getWidth(), getHeight());
+	private WritableImage createBackground() {
+		final int width = (int) canvas.getWidth();
+		final int height = (int) canvas.getHeight();
+		final WritableImage img = new WritableImage(width, height);
+		final Canvas tempCanvas = new Canvas(width, height);
+		final GraphicsContext tempGc = tempCanvas.getGraphicsContext2D();
+
+		tempGc.setFill(convertColor(ColorLabel.LANE.color()));
+		tempGc.fillRect(0, 0, width, height);
 		if (chartData.isEmpty) {
+			tempCanvas.snapshot(null, img);
 			return img;
 		}
 
 		switch (modeManager.getMode()) {
 			case TEMPO_MAP:
-				drawBars(g);
+				drawBars(tempGc);
 				break;
 			case VOCALS:
-				drawVocalLines(g);
+				drawVocalLines(tempGc);
 				break;
 			case GUITAR:
-				drawPhrases(g);
-				drawSections(g);
-				drawNotes(g);
+				drawPhrases(tempGc);
+				drawSections(tempGc);
+				drawNotes(tempGc);
 				break;
 			default:
 				break;
 		}
 
-		drawBookmarks(g);
+		drawBookmarks(tempGc);
+		tempCanvas.snapshot(null, img);
 
 		return img;
 	}
 
+	private Color convertColor(java.awt.Color awtColor) {
+		return Color.rgb(awtColor.getRed(), awtColor.getGreen(), awtColor.getBlue(),
+			awtColor.getAlpha() / 255.0);
+	}
+
 	@Override
 	public void init() {
-		setSize(charterFrame.getWidth(), chartMapHeight);
+		canvas.setWidth(charterFrame.getStage().getWidth());
+		canvas.setFocusTraversable(false);
 
-		setFocusable(false);
-		addMouseListener(this);
-		addMouseMotionListener(this);
+		// Mouse event handlers
+		canvas.setOnMousePressed(this::handleMousePressed);
+		canvas.setOnMouseReleased(this::handleMouseReleased);
+		canvas.setOnMouseEntered(this::handleMouseEntered);
+		canvas.setOnMouseExited(this::handleMouseExited);
+		canvas.setOnMouseDragged(this::handleMouseDragged);
 
 		imageMakerThread = new Thread(() -> {
 			while (!imageMakerThread.isInterrupted()) {
@@ -110,33 +131,34 @@ public class ChartMap extends Component implements Initiable, MouseListener, Mou
 	}
 
 	private int positionToTime(int p) {
-		p = max(0, min(getWidth() - 1, p));
-		return (int) ((double) p * chartTimeHandler.maxTime() / (getWidth() - 1));
+		p = max(0, (int) min(canvas.getWidth() - 1, p));
+		return (int) ((double) p * chartTimeHandler.maxTime() / (canvas.getWidth() - 1));
 	}
 
 	private int timeToPosition(final double t) {
-		return (int) (t * (getWidth() - 1) / chartTimeHandler.maxTime());
+		return (int) (t * (canvas.getWidth() - 1) / chartTimeHandler.maxTime());
 	}
 
-	private void drawBars(final Graphics g) {
-		g.setColor(ColorLabel.MAIN_BEAT.color());
+	private void drawBars(final GraphicsContext g) {
+		g.setStroke(convertColor(ColorLabel.MAIN_BEAT.color()));
 
 		chartData.beats().stream()//
 				.filter(beat -> beat.firstInMeasure)//
 				.forEach(beat -> {
 					final int x = timeToPosition(beat.position());
-					final Color color = (beat.anchor ? ColorLabel.MAIN_BEAT : ColorLabel.SECONDARY_BEAT).color();
-					g.setColor(color);
-					g.drawLine(x, 0, x, getHeight());
+					final Color color = convertColor((beat.anchor ? ColorLabel.MAIN_BEAT : ColorLabel.SECONDARY_BEAT).color());
+					g.setStroke(color);
+					g.strokeLine(x, 0, x, canvas.getHeight());
 				});
 	}
 
-	private void drawVocalLines(final Graphics g) {
-		g.setColor(ColorLabel.VOCAL_NOTE.color());
+	private void drawVocalLines(final GraphicsContext g) {
+		g.setFill(convertColor(ColorLabel.VOCAL_NOTE.color()));
+		g.setStroke(convertColor(ColorLabel.VOCAL_NOTE.color()));
 
 		final ImmutableBeatsMap beats = chartData.beats();
 		final int y0 = chartMapHeightMultiplier;
-		final int y2 = getHeight() - chartMapHeightMultiplier - 1;
+		final int y2 = (int) canvas.getHeight() - chartMapHeightMultiplier - 1;
 		final int y1 = y0 + chartMapHeightMultiplier;
 		boolean started = false;
 		int x = 0;
@@ -151,14 +173,14 @@ public class ChartMap extends Component implements Initiable, MouseListener, Mou
 				final int x1 = timeToPosition(vocal.endPosition(beats));
 
 				g.fillRect(x, y1, x1 - x, chartMapHeightMultiplier);
-				g.drawLine(x, y0, x, y2);
-				g.drawLine(x1, y0, x1, y2);
+				g.strokeLine(x, y0, x, y2);
+				g.strokeLine(x1, y0, x1, y2);
 				started = false;
 			}
 		}
 	}
 
-	private void drawEventPoints(final Graphics g, final int y, final ColorLabel color,
+	private void drawEventPoints(final GraphicsContext g, final int y, final ColorLabel color,
 			final Predicate<EventPoint> filter) {
 		final ImmutableBeatsMap beats = chartData.beats();
 		final List<EventPoint> points = chartData.currentArrangement().getFilteredEventPoints(filter);
@@ -172,36 +194,36 @@ public class ChartMap extends Component implements Initiable, MouseListener, Mou
 			final int x1 = timeToPosition(nextPointTime);
 			final int width = max(1, x1 - x0 - 2);
 
-			g.setColor(color.color());
+			g.setFill(convertColor(color.color()));
 			g.fillRect(x0, y, width, chartMapHeightMultiplier);
-			g.setColor(color.color().darker());
+			g.setFill(convertColor(color.color().darker()));
 			g.fillRect(x1 - 2, y, 2, chartMapHeightMultiplier);
 		}
 	}
 
-	private void drawPhrases(final Graphics g) {
+	private void drawPhrases(final GraphicsContext g) {
 		drawEventPoints(g, chartMapHeightMultiplier, ColorLabel.PHRASE_NAME_BG, ep -> ep.phrase != null);
 	}
 
-	private void drawSections(final Graphics g) {
+	private void drawSections(final GraphicsContext g) {
 		drawEventPoints(g, 0, ColorLabel.SECTION_NAME_BG, ep -> ep.section != null);
 	}
 
-	private void drawNote(final Graphics g, final int string, final double position, final double length) {
-		g.setColor(getStringBasedColor(StringColorLabelType.NOTE, string, chartData.currentStrings()));
+	private void drawNote(final GraphicsContext g, final int string, final double position, final double length) {
+		g.setStroke(convertColor(getStringBasedColor(StringColorLabelType.NOTE, string, chartData.currentStrings())));
 
 		final int x0 = timeToPosition(position);
 		final int x1 = timeToPosition(position + length);
 		final int y0 = 2 * chartMapHeightMultiplier + 1
 				+ getStringPosition(string, chartData.currentStrings()) * chartMapHeightMultiplier;
 		final int y1 = y0 + chartMapHeightMultiplier - 1;
-		g.drawLine(x0, y0, x0, y1);
+		g.strokeLine(x0, y0, x0, y1);
 		if (x1 > x0) {
-			g.drawLine(x0, y1, x1, y1);
+			g.strokeLine(x0, y1, x1, y1);
 		}
 	}
 
-	private void drawNotes(final Graphics g) {
+	private void drawNotes(final GraphicsContext g) {
 		final ImmutableBeatsMap beats = chartData.beats();
 
 		chartData.currentArrangementLevel().sounds.stream()//
@@ -209,79 +231,66 @@ public class ChartMap extends Component implements Initiable, MouseListener, Mou
 				.forEach(note -> drawNote(g, note.string(), note.position(beats), note.length(beats)));
 	}
 
-	private void drawBookmarks(final Graphics g) {
-		g.setColor(ColorLabel.BOOKMARK.color());
+	private void drawBookmarks(final GraphicsContext g) {
+		g.setStroke(convertColor(ColorLabel.BOOKMARK.color()));
+		g.setFill(convertColor(ColorLabel.BOOKMARK.color()));
 
 		chartData.songChart.bookmarks.forEach((number, position) -> {
 			final int x = timeToPosition(position);
-			g.drawLine(x, 0, x, getHeight());
-			g.drawString(number + "", x + 2, 10);
+			g.strokeLine(x, 0, x, canvas.getHeight());
+			g.fillText(number + "", x + 2, 10);
 		});
 	}
 
-	private void drawMarkerAndViewArea(final Graphics g) {
+	private void drawMarkerAndViewArea(final GraphicsContext g) {
 		final int markerPosition = timeToPosition(chartTimeHandler.time());
 
 		final int x0 = markerPosition - timeToPosition(xToTimeLength(GraphicalConfig.markerOffset));
 		final int x1 = markerPosition
-				+ timeToPosition(xToTimeLength(chartPanel.getWidth() - GraphicalConfig.markerOffset));
-		g.setColor(ColorLabel.MARKER_VIEW_AREA.color());
-		g.drawRect(x0, 0, x1 - x0, getHeight() - 1);
+				+ timeToPosition(xToTimeLength((int) chartPanel.getCanvas().getWidth() - GraphicalConfig.markerOffset));
+		g.setStroke(convertColor(ColorLabel.MARKER_VIEW_AREA.color()));
+		g.strokeRect(x0, 0, x1 - x0, canvas.getHeight() - 1);
 
-		g.setColor(ColorLabel.MARKER.color());
-		g.drawLine(markerPosition, 0, markerPosition, getHeight() - 1);
-		g.setColor(ColorLabel.MARKER.color().darker());
-		g.drawLine(markerPosition + 1, 0, markerPosition + 1, getHeight() - 1);
+		g.setStroke(convertColor(ColorLabel.MARKER.color()));
+		g.strokeLine(markerPosition, 0, markerPosition, canvas.getHeight() - 1);
+		g.setStroke(convertColor(ColorLabel.MARKER.color().darker()));
+		g.strokeLine(markerPosition + 1, 0, markerPosition + 1, canvas.getHeight() - 1);
 	}
 
-	@Override
-	public void paint(final Graphics g) {
+	public void repaint() {
 		if (modeManager.getMode() == EditMode.EMPTY) {
-			g.setColor(ColorLabel.BASE_BG_0.color());
-			g.fillRect(0, 0, getWidth(), getHeight());
+			gc.setFill(convertColor(ColorLabel.BASE_BG_0.color()));
+			gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 			return;
 		}
 
 		if (background != null) {
-			g.drawImage(background, 0, 0, null);
+			gc.drawImage(background, 0, 0);
 		} else {
-			g.setColor(ColorLabel.BASE_BG_0.color());
-			g.fillRect(0, 0, getWidth(), getHeight());
+			gc.setFill(convertColor(ColorLabel.BASE_BG_0.color()));
+			gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		}
 
-		drawMarkerAndViewArea(g);
+		drawMarkerAndViewArea(gc);
 	}
 
-	@Override
-	public void mouseClicked(final MouseEvent e) {
+	private void handleMousePressed(final MouseEvent e) {
+		chartTimeHandler.nextTime(positionToTime((int) e.getX()));
 	}
 
-	@Override
-	public void mousePressed(final MouseEvent e) {
-		chartTimeHandler.nextTime(positionToTime(e.getX()));
+	private void handleMouseReleased(final MouseEvent e) {
 	}
 
-	@Override
-	public void mouseReleased(final MouseEvent e) {
+	private void handleMouseEntered(final MouseEvent e) {
+		canvas.requestFocus();
 	}
 
-	@Override
-	public void mouseEntered(final MouseEvent e) {
-		this.requestFocusInWindow();
+	private void handleMouseExited(final MouseEvent e) {
+		charterFrame.getStage().getScene().getRoot().requestFocus();
 	}
 
-	@Override
-	public void mouseExited(final MouseEvent e) {
-		charterFrame.requestFocusInWindow();
-	}
-
-	@Override
-	public void mouseDragged(final MouseEvent e) {
-		chartTimeHandler.nextTime(positionToTime(e.getX()));
-	}
-
-	@Override
-	public void mouseMoved(final MouseEvent e) {
+	private void handleMouseDragged(final MouseEvent e) {
+		chartTimeHandler.nextTime(positionToTime((int) e.getX()));
 	}
 
 	public void triggerRedraw() {
@@ -292,5 +301,17 @@ public class ChartMap extends Component implements Initiable, MouseListener, Mou
 				Logger.error("Couldn't create background for chart map", e);
 			}
 		}).start();
+	}
+
+	public void resize() {
+		// Resize will be handled by parent layout
+	}
+
+	public Node getNode() {
+		return canvas;
+	}
+
+	public Canvas getCanvas() {
+		return canvas;
 	}
 }

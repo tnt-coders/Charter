@@ -203,7 +203,7 @@ public class CharterContext {
 		}
 	}
 
-	public void init() {
+	public void init(javafx.stage.Stage primaryStage) {
 		for (final Field field : this.getClass().getDeclaredFields()) {
 			try {
 				initObject(field.get(this));
@@ -220,7 +220,7 @@ public class CharterContext {
 
 		ExitActions.addOnExit(this::onExit);
 
-		charterFrame.finishInitAndShow();
+		charterFrame.finishInitAndShow(primaryStage);
 	}
 
 	public void openProject(final String path) {
@@ -291,7 +291,7 @@ public class CharterContext {
 	private void onExit() {
 		audioFramer.stop();
 		framer.stop();
-		charterFrame.dispose();
+		charterFrame.close();
 		System.exit(0);
 	}
 }

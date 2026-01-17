@@ -1,36 +1,32 @@
 package log.charter.gui.components.containers;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-
-import javax.swing.Icon;
-import javax.swing.JTabbedPane;
+import javafx.scene.Node;
+import javafx.scene.control.TabPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 import log.charter.data.config.Localization.Label;
-import log.charter.gui.lookAndFeel.CharterTabbedPaneUI;
 
-public class CharterTabbedPane extends JTabbedPane implements ComponentListener {
-	private static final long serialVersionUID = 7754083325093561588L;
+public class CharterTabbedPane {
+	private TabPane tabPane;
 
 	public static class Tab {
 		public final String name;
-		public final Component component;
+		public final Node component;
 
-		public Icon icon = null;
+		public Image icon = null;
 		public String tip = null;
 
-		public Tab(final Label label, final Component component) {
+		public Tab(final Label label, final Node component) {
 			this(label.label(), component);
 		}
 
-		public Tab(final String name, final Component component) {
+		public Tab(final String name, final Node component) {
 			this.name = name;
 			this.component = component;
 		}
 
-		public Tab icon(final Icon value) {
+		public Tab icon(final Image value) {
 			icon = value;
 			return this;
 		}
@@ -42,36 +38,37 @@ public class CharterTabbedPane extends JTabbedPane implements ComponentListener 
 	}
 
 	public CharterTabbedPane(final Tab... tabs) {
-		super();
-		setUI(new CharterTabbedPaneUI());
+		tabPane = new TabPane();
 
 		for (final Tab tab : tabs) {
-			this.addTab(tab.name, tab.icon, tab.component, tab.tip);
+			javafx.scene.control.Tab fxTab = new javafx.scene.control.Tab(tab.name);
+			fxTab.setContent(tab.component);
+
+			if (tab.icon != null) {
+				fxTab.setGraphic(new ImageView(tab.icon));
+			}
+
+			if (tab.tip != null) {
+				fxTab.setTooltip(new javafx.scene.control.Tooltip(tab.tip));
+			}
+
+			tabPane.getTabs().add(fxTab);
 		}
 
-		addComponentListener(this);
+		// Handle resizing
+		tabPane.widthProperty().addListener((obs, oldVal, newVal) -> resize());
+		tabPane.heightProperty().addListener((obs, oldVal, newVal) -> resize());
 	}
 
-	@Override
-	public void componentResized(final ComponentEvent e) {
-		final Dimension newTabSize = new Dimension(getWidth() - 25, getHeight() - 40);
-
-		for (int i = 0; i < getTabCount(); i++) {
-			final Component component = getComponentAt(i);
-			component.setPreferredSize(newTabSize);
-			component.setSize(newTabSize);
-		}
+	private void resize() {
+		// JavaFX handles tab sizing automatically
 	}
 
-	@Override
-	public void componentMoved(final ComponentEvent e) {
+	public void resize() {
+		// Called from parent, JavaFX handles this automatically
 	}
 
-	@Override
-	public void componentShown(final ComponentEvent e) {
-	}
-
-	@Override
-	public void componentHidden(final ComponentEvent e) {
+	public TabPane getTabPane() {
+		return tabPane;
 	}
 }
