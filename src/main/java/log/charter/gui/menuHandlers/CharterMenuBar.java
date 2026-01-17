@@ -1,20 +1,17 @@
 package log.charter.gui.menuHandlers;
 
-import java.awt.Dimension;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
 import log.charter.services.CharterContext;
 import log.charter.services.CharterContext.Initiable;
 import log.charter.util.collections.ArrayList2;
 import log.charter.data.config.ChartPanelColors.ColorLabel;
 import log.charter.gui.CharterFrame;
 
-public class CharterMenuBar extends JMenuBar implements Initiable {
-	private static final long serialVersionUID = -5784270027920161709L;
+public class CharterMenuBar extends MenuBar implements Initiable {
 
 	public static final ColorLabel backgroundColor = ColorLabel.BASE_BG_2;
 
@@ -51,27 +48,16 @@ public class CharterMenuBar extends JMenuBar implements Initiable {
 		charterContext.initObject(notesMenuHandler);
 		charterContext.initObject(vocalsMenuHandler);
 
-		final Dimension size = new Dimension(1, 20);
-		setMinimumSize(size);
-		setSize(size);
-		setMaximumSize(size);
-		setPreferredSize(size);
-
-		setBackground(backgroundColor.color());
-
 		refreshMenus();
-
-		charterFrame.setJMenuBar(this);
 	}
 
 	public void refreshMenus() {
-		final List<JMenu> menusToAdd = menus.stream()//
+		final List<Menu> menusToAdd = menus.stream()//
 				.filter(menu -> menu.isApplicable())//
 				.map(menu -> menu.prepareMenu())//
 				.collect(Collectors.toList());
 
-		removeAll();
-		menusToAdd.forEach(this::add);
-		validate();
+		getMenus().clear();
+		getMenus().addAll(menusToAdd);
 	}
 }

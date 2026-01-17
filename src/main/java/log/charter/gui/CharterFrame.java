@@ -3,16 +3,16 @@ package log.charter.gui;
 import static java.util.Arrays.asList;
 import static log.charter.data.config.SystemType.MAC;
 
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Insets;
-import java.awt.dnd.DropTarget;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import javax.swing.JFrame;
-
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import log.charter.CharterMain;
 import log.charter.data.ChartData;
 import log.charter.data.config.Config;
@@ -23,7 +23,7 @@ import log.charter.data.song.Arrangement;
 import log.charter.gui.chartPanelDrawers.common.DrawerUtils;
 import log.charter.gui.components.containers.CharterScrollPane;
 import log.charter.gui.components.containers.CharterTabbedPane;
-import log.charter.gui.components.containers.CharterTabbedPane.Tab;
+import log.charter.gui.components.containers.CharterTabbedPane.TabData;
 import log.charter.gui.components.preview3D.Preview3DPanel;
 import log.charter.gui.components.simple.ChartMap;
 import log.charter.gui.components.tabs.HelpTab;
@@ -33,23 +33,17 @@ import log.charter.gui.components.tabs.errorsTab.ErrorsTab;
 import log.charter.gui.components.tabs.selectionEditor.CurrentSelectionEditor;
 import log.charter.gui.components.toolbar.ChartToolbar;
 import log.charter.gui.components.utils.ComponentUtils;
-import log.charter.gui.lookAndFeel.CharterTheme;
 import log.charter.gui.menuHandlers.CharterMenuBar;
 import log.charter.io.Logger;
 import log.charter.services.CharterContext;
 import log.charter.services.CharterContext.Initiable;
-import log.charter.services.CharterFrameComponentListener;
-import log.charter.services.CharterFrameWindowFocusListener;
-import log.charter.services.CharterFrameWindowListener;
 import log.charter.services.data.files.FileDropHandler;
 import log.charter.services.editModes.EditMode;
 import log.charter.services.editModes.ModeManager;
 import log.charter.services.mouseAndKeyboard.KeyboardHandler;
 import log.charter.util.collections.Pair;
-import net.sf.image4j.codec.ico.ICODecoder;
 
-public class CharterFrame extends JFrame implements Initiable {
-	private static final long serialVersionUID = 3603305480386377813L;
+public class CharterFrame implements Initiable {
 
 	private ChartData chartData;
 	private CharterContext charterContext;
@@ -70,70 +64,80 @@ public class CharterFrame extends JFrame implements Initiable {
 	private ChartMap chartMap;
 	private CharterTabbedPane tabs;
 
-	private boolean paintWaiting = false;
+	private Stage stage;
+	private BorderPane root;
 
 	public CharterFrame() {
-		super(CharterMain.TITLE + " : " + Label.NO_PROJECT.label());
-		try {
-			final InputStream stream = this.getClass().getResourceAsStream("/icon.ico");
-			setIconImages(ICODecoder.read(stream));
-		} catch (final IOException e) {
-			Logger.error("Couldn't load icon", e);
-		}
-
-		CharterTheme.install(this);
-
-		setLayout(null);
-		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 	}
 
 	@Override
 	public void init() {
+		this.stage = charterContext.primaryStage();
+		stage.setTitle(CharterMain.TITLE + " : " + Label.NO_PROJECT.label());
+		try {
+			final InputStream stream = this.getClass().getResourceAsStream("/icon.ico");
+			if (stream != null) {
+				stage.getIcons().add(new Image(stream));
+			}
+		} catch (final Exception e) {
+			Logger.error("Couldn't load icon", e);
+		}
+
 		if (SystemType.not(MAC)) {
 			charterContext.initObject(preview3DPanel);
 		}
 
-		setSize(WindowStateConfig.width, WindowStateConfig.height);
-		setLocation(WindowStateConfig.x, WindowStateConfig.y);
-		setExtendedState(WindowStateConfig.extendedState);
+		stage.setWidth(WindowStateConfig.width);
+		stage.setHeight(WindowStateConfig.height);
+		stage.setX(WindowStateConfig.x);
+		stage.setY(WindowStateConfig.y);
+		stage.setMaximized(WindowStateConfig.extendedState == 6); // MAXIMIZED_BOTH in Swing is usually 6
 
 		if (SystemType.is(MAC)) {
 			tabs = new CharterTabbedPane(//
-					new Tab(Label.TAB_QUICK_EDIT, new CharterScrollPane(currentSelectionEditor)), //
-					new Tab(Label.TAB_CHORD_TEMPLATES_EDITOR, new CharterScrollPane(chordTemplatesEditorTab)), //
-					new Tab(Label.TAB_ERRORS, errorsTab), //
-					new Tab(Label.TAB_TEXT, textTab), //
-					new Tab(Label.TAB_HELP, helpTab));
+					new TabData(Label.TAB_QUICK_EDIT, new CharterScrollPane(currentSelectionEditor)), //
+					new TabData(Label.TAB_CHORD_TEMPLATES_EDITOR, new CharterScrollPane(chordTemplatesEditorTab)), //
+					new TabData(Label.TAB_ERRORS, errorsTab), //
+					new TabData(Label.TAB_TEXT, textTab), //
+					new TabData(Label.TAB_HELP, helpTab));
 		} else {
 			tabs = new CharterTabbedPane(//
-					new Tab(Label.TAB_QUICK_EDIT, new CharterScrollPane(currentSelectionEditor)), //
-					new Tab(Label.TAB_CHORD_TEMPLATES_EDITOR, new CharterScrollPane(chordTemplatesEditorTab)), //
-					new Tab(Label.TAB_ERRORS, errorsTab), //
-					new Tab(Label.TAB_3D_PREVIEW, preview3DPanel), //
-					new Tab(Label.TAB_TEXT, textTab), //
-					new Tab(Label.TAB_HELP, helpTab));
+					new TabData(Label.TAB_QUICK_EDIT, new CharterScrollPane(currentSelectionEditor)), //
+					new TabData(Label.TAB_CHORD_TEMPLATES_EDITOR, new CharterScrollPane(chordTemplatesEditorTab)), //
+					new TabData(Label.TAB_ERRORS, errorsTab), //
+					new TabData(Label.TAB_3D_PREVIEW, preview3DPanel), //
+					new TabData(Label.TAB_TEXT, textTab), //
+					new TabData(Label.TAB_HELP, helpTab));
 		}
 
-		add(chartToolbar);
-		add(chartPanel);
-		add(chartMap);
-		add(tabs);
+		root = new BorderPane();
+		final VBox topContainer = new VBox();
+		topContainer.getChildren().addAll(charterMenuBar, chartToolbar);
+		root.setTop(topContainer);
 
-		addComponentListener(new CharterFrameComponentListener(this));
-		addKeyListener(keyboardHandler);
-		addWindowFocusListener(new CharterFrameWindowFocusListener(keyboardHandler));
-		addWindowListener(new CharterFrameWindowListener(charterContext));
-		setDropTarget(new DropTarget(this, fileDropHandler));
+		final VBox centerContainer = new VBox();
+		centerContainer.getChildren().addAll(chartPanel, chartMap, tabs);
+		root.setCenter(centerContainer);
 
-		setFocusTraversalKeysEnabled(false);
+		final Scene scene = new Scene(root);
+		stage.setScene(scene);
+
+		stage.setOnCloseRequest(e -> {
+			e.consume();
+			charterContext.exit();
+		});
 	}
 
 	public void finishInitAndShow() {
-		resizeComponents();
+		stage.show();
+	}
 
-		validate();
-		setVisible(true);
-		setFocusable(true);
+	public boolean isShowing() {
+		return stage != null && stage.isShowing();
+	}
+
+	public void dispose() {
+		stage.close();
 	}
 
 	public void resize() {

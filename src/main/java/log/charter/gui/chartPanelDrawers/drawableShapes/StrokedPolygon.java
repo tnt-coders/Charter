@@ -1,8 +1,7 @@
 package log.charter.gui.chartPanelDrawers.drawableShapes;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 import log.charter.util.data.Position2D;
 
@@ -16,16 +15,15 @@ class StrokedPolygon implements DrawableShape {
 	}
 
 	@Override
-	public void draw(final Graphics2D g) {
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g.setColor(color);
-		final int[] xs = new int[points.length];
-		final int[] ys = new int[points.length];
+	public void draw(final GraphicsContext gc) {
+		gc.setStroke(color);
+		final double[] xs = new double[points.length];
+		final double[] ys = new double[points.length];
 		for (int i = 0; i < points.length; i++) {
-			xs[i] = points[i].x;
-			ys[i] = points[i].y;
+			xs[i] = (double) points[i].x;
+			ys[i] = (double) points[i].y;
 		}
 
-		g.drawPolygon(xs, ys, points.length);
+		gc.strokePolygon(xs, ys, points.length);
 	}
 }

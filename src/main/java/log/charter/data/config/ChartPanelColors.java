@@ -1,8 +1,5 @@
 package log.charter.data.config;
 
-import static log.charter.util.ColorUtils.setAlpha;
-
-import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -11,6 +8,7 @@ import log.charter.data.config.Localization.Label;
 import log.charter.util.ColorUtils;
 import log.charter.util.RW;
 import log.charter.util.Utils;
+import javafx.scene.paint.Color;
 
 public class ChartPanelColors {
 	public enum ColorLabel {
@@ -121,11 +119,11 @@ public class ChartPanelColors {
 		public final Color defaultColor;
 
 		private ColorLabel(final int r, final int g, final int b) {
-			defaultColor = new Color(r, g, b);
+			defaultColor = Color.rgb(r, g, b);
 		}
 
 		private ColorLabel(final int r, final int g, final int b, final int a) {
-			defaultColor = new Color(r, g, b, a);
+			defaultColor = Color.rgb(r, g, b, a / 255.0);
 		}
 
 		public Color color() {
@@ -137,7 +135,8 @@ public class ChartPanelColors {
 		}
 
 		public Color colorWithAlpha(final int alpha) {
-			return setAlpha(color(), alpha);
+			return Color.rgb((int) (color().getRed() * 255), (int) (color().getGreen() * 255),
+					(int) (color().getBlue() * 255), alpha / 255.0);
 		}
 
 		public String label() {

@@ -1,77 +1,43 @@
 package log.charter.gui.components.containers;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-
-import javax.swing.Icon;
-import javax.swing.JTabbedPane;
-
+import javafx.scene.Node;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import log.charter.data.config.Localization.Label;
-import log.charter.gui.lookAndFeel.CharterTabbedPaneUI;
 
-public class CharterTabbedPane extends JTabbedPane implements ComponentListener {
-	private static final long serialVersionUID = 7754083325093561588L;
+public class CharterTabbedPane extends TabPane {
 
-	public static class Tab {
+	public static class TabData {
 		public final String name;
-		public final Component component;
+		public final Node component;
 
-		public Icon icon = null;
 		public String tip = null;
 
-		public Tab(final Label label, final Component component) {
+		public TabData(final Label label, final Node component) {
 			this(label.label(), component);
 		}
 
-		public Tab(final String name, final Component component) {
+		public TabData(final String name, final Node component) {
 			this.name = name;
 			this.component = component;
 		}
 
-		public Tab icon(final Icon value) {
-			icon = value;
-			return this;
-		}
-
-		public Tab tip(final String value) {
+		public TabData tip(final String value) {
 			tip = value;
 			return this;
 		}
 	}
 
-	public CharterTabbedPane(final Tab... tabs) {
+	public CharterTabbedPane(final TabData... tabs) {
 		super();
-		setUI(new CharterTabbedPaneUI());
 
-		for (final Tab tab : tabs) {
-			this.addTab(tab.name, tab.icon, tab.component, tab.tip);
+		for (final TabData tabData : tabs) {
+			final Tab tab = new Tab(tabData.name, tabData.component);
+			tab.setClosable(false);
+			if (tabData.tip != null) {
+				// TODO: set tooltip
+			}
+			getTabs().add(tab);
 		}
-
-		addComponentListener(this);
-	}
-
-	@Override
-	public void componentResized(final ComponentEvent e) {
-		final Dimension newTabSize = new Dimension(getWidth() - 25, getHeight() - 40);
-
-		for (int i = 0; i < getTabCount(); i++) {
-			final Component component = getComponentAt(i);
-			component.setPreferredSize(newTabSize);
-			component.setSize(newTabSize);
-		}
-	}
-
-	@Override
-	public void componentMoved(final ComponentEvent e) {
-	}
-
-	@Override
-	public void componentShown(final ComponentEvent e) {
-	}
-
-	@Override
-	public void componentHidden(final ComponentEvent e) {
 	}
 }

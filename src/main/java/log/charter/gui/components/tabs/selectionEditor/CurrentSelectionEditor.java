@@ -1,18 +1,10 @@
 package log.charter.gui.components.tabs.selectionEditor;
 
-import static log.charter.data.types.PositionType.GUITAR_NOTE;
-import static log.charter.data.types.PositionType.HAND_SHAPE;
-import static log.charter.data.types.PositionType.NONE;
-import static log.charter.data.types.PositionType.VOCAL;
-
-import java.awt.Dimension;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
+import javafx.scene.layout.Pane;
 import log.charter.data.config.ChartPanelColors.ColorLabel;
 import log.charter.data.song.FHP;
 import log.charter.data.song.HandShape;
@@ -22,36 +14,18 @@ import log.charter.data.song.position.virtual.IVirtualPosition;
 import log.charter.data.song.vocals.Vocal;
 import log.charter.data.types.PositionType;
 import log.charter.gui.components.containers.RowedPanel;
-import log.charter.gui.components.utils.PaneSizesBuilder;
 import log.charter.services.CharterContext;
 import log.charter.services.CharterContext.Initiable;
 import log.charter.services.data.selection.ISelectionAccessor;
 import log.charter.services.data.selection.SelectionManager;
 import log.charter.services.mouseAndKeyboard.KeyboardHandler;
 
+import static log.charter.data.types.PositionType.GUITAR_NOTE;
+import static log.charter.data.types.PositionType.HAND_SHAPE;
+import static log.charter.data.types.PositionType.NONE;
+import static log.charter.data.types.PositionType.VOCAL;
+
 public class CurrentSelectionEditor extends RowedPanel implements Initiable {
-	private static final long serialVersionUID = 1L;
-
-	public static <T, U> U getSingleValue(final Collection<T> selected, final Function<T, U> mapper,
-			final U defaultValue) {
-		final List<U> values = selected.stream()//
-				.map(mapper)//
-				.distinct()//
-				.collect(Collectors.toList());
-
-		return values.size() == 1 ? values.get(0) : defaultValue;
-	}
-
-	public static <T, U> U getSingleValueWithoutNulls(final Collection<T> selected, final Function<T, U> mapper,
-			final U defaultValue) {
-		final List<U> values = selected.stream()//
-				.map(mapper)//
-				.distinct()//
-				.filter(v -> v != null)//
-				.collect(Collectors.toList());
-
-		return values.size() == 1 ? values.get(0) : defaultValue;
-	}
 
 	private CharterContext charterContext;
 	private KeyboardHandler keyboardHandler;
@@ -66,13 +40,6 @@ public class CurrentSelectionEditor extends RowedPanel implements Initiable {
 	private final VocalSelectionEditor vocalSelectionEditor = new VocalSelectionEditor();
 
 	public CurrentSelectionEditor() {
-		super(new PaneSizesBuilder(0).build());
-
-		setOpaque(true);
-		setBackground(ColorLabel.BASE_BG_2.color());
-
-		setMinimumSize(new Dimension(925, sizes.getHeight(10)));
-
 		parts.put(PositionType.EVENT_POINT, new EventPointSelectionEditor());
 	}
 
@@ -80,27 +47,15 @@ public class CurrentSelectionEditor extends RowedPanel implements Initiable {
 	public void init() {
 		for (final SelectionEditorPart<?> part : parts.values()) {
 			charterContext.initObject(part);
-			part.addTo(this);
 		}
 
 		charterContext.initObject(fhpSelectionEditor);
-		fhpSelectionEditor.addTo(this);
-
 		charterContext.initObject(guitarSoundSelectionEditor);
-		guitarSoundSelectionEditor.addTo(this);
-
 		charterContext.initObject(handShapeSelectionEditor);
-		handShapeSelectionEditor.addTo(this);
-
 		charterContext.initObject(toneChangeSelectionEditor);
-		toneChangeSelectionEditor.addTo(this);
-
 		charterContext.initObject(vocalSelectionEditor);
-		vocalSelectionEditor.addTo(this);
 
 		hideAllfieldsExcept(null);
-
-		addKeyListener(keyboardHandler);
 	}
 
 	private void hideAllfieldsExcept(final PositionType type) {
@@ -170,7 +125,6 @@ public class CurrentSelectionEditor extends RowedPanel implements Initiable {
 			}
 		}
 
-		repaint();
 	}
 
 	public List<Integer> getSelectedStrings() {

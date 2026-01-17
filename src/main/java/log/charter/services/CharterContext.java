@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
+import javafx.stage.Stage;
 import log.charter.data.ChartData;
 import log.charter.data.config.Localization.Label;
 import log.charter.data.config.SystemType;
@@ -203,10 +204,20 @@ public class CharterContext {
 		}
 	}
 
-	public void init() {
+	private Stage primaryStage;
+
+	public Stage primaryStage() {
+		return primaryStage;
+	}
+
+	public void init(final Stage primaryStage) {
+		this.primaryStage = primaryStage;
 		for (final Field field : this.getClass().getDeclaredFields()) {
 			try {
-				initObject(field.get(this));
+				final Object value = field.get(this);
+				if (value != null) {
+					initObject(value);
+				}
 			} catch (final IllegalAccessException e) {
 				Logger.error("Couldn't initiate " + field.getName(), e);
 				System.exit(0);

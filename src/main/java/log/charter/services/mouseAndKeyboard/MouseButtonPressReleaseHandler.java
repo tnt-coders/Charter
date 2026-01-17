@@ -2,7 +2,8 @@ package log.charter.services.mouseAndKeyboard;
 
 import static java.lang.Math.abs;
 
-import java.awt.event.MouseEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,15 +11,15 @@ import log.charter.data.types.PositionWithIdAndType;
 import log.charter.util.data.Position2D;
 
 public class MouseButtonPressReleaseHandler {
-	public enum MouseButton {
+	public enum CustomMouseButton {
 		LEFT_BUTTON, //
 		RIGHT_BUTTON;
 
-		public static MouseButton fromEvent(final MouseEvent e) {
-			if (e.getButton() == MouseEvent.BUTTON1) {
+		public static CustomMouseButton fromEvent(final MouseEvent e) {
+			if (e.getButton() == MouseButton.PRIMARY) {
 				return LEFT_BUTTON;
 			}
-			if (e.getButton() == MouseEvent.BUTTON3) {
+			if (e.getButton() == MouseButton.SECONDARY) {
 				return RIGHT_BUTTON;
 			}
 
@@ -27,11 +28,11 @@ public class MouseButtonPressReleaseHandler {
 	}
 
 	public static class MouseButtonPressData {
-		public final MouseButton button;
+		public final CustomMouseButton button;
 		public final Position2D position;
 		public final PositionWithIdAndType highlight;
 
-		public MouseButtonPressData(final MouseButton button, final Position2D position,
+		public MouseButtonPressData(final CustomMouseButton button, final Position2D position,
 				final PositionWithIdAndType highlight) {
 			this.button = button;
 			this.position = position;
@@ -40,7 +41,7 @@ public class MouseButtonPressReleaseHandler {
 	}
 
 	public static class MouseButtonPressReleaseData {
-		public final MouseButton button;
+		public final CustomMouseButton button;
 		public final PositionWithIdAndType pressHighlight;
 		public final PositionWithIdAndType releaseHighlight;
 		public final Position2D pressPosition;
@@ -62,24 +63,24 @@ public class MouseButtonPressReleaseHandler {
 
 	private HighlightManager highlightManager;
 
-	private final Map<MouseButton, MouseButtonPressData> pressedButtons = new HashMap<>();
+	private final Map<CustomMouseButton, MouseButtonPressData> pressedButtons = new HashMap<>();
 
 	public void press(final MouseEvent e) {
-		final MouseButton button = MouseButton.fromEvent(e);
+		final CustomMouseButton button = CustomMouseButton.fromEvent(e);
 		if (button != null) {
-			final Position2D position = new Position2D(e.getX(), e.getY());
+			final Position2D position = new Position2D((int) e.getX(), (int) e.getY());
 			final PositionWithIdAndType highlight = highlightManager.getHighlight(position.x, position.y);
 			final MouseButtonPressData pressData = new MouseButtonPressData(button, position, highlight);
 			pressedButtons.put(button, pressData);
 		}
 	}
 
-	public MouseButtonPressData getPressPosition(final MouseButton button) {
+	public MouseButtonPressData getPressPosition(final CustomMouseButton button) {
 		return pressedButtons.get(button);
 	}
 
 	public MouseButtonPressReleaseData release(final MouseEvent e) {
-		final MouseButton button = MouseButton.fromEvent(e);
+		final CustomMouseButton button = CustomMouseButton.fromEvent(e);
 		if (button == null) {
 			return null;
 		}
@@ -89,12 +90,14 @@ public class MouseButtonPressReleaseHandler {
 			return null;
 		}
 
-		final PositionWithIdAndType highlight = highlightManager.getHighlight(e.getX(), e.getY());
-		return new MouseButtonPressReleaseData(pressData, highlight, e.getX(), e.getY());
+		final int x = (int) e.getX();
+		final int y = (int) e.getY();
+		final PositionWithIdAndType highlight = highlightManager.getHighlight(x, y);
+		return new MouseButtonPressReleaseData(pressData, highlight, x, y);
 	}
 
 	public void remove(final MouseEvent e) {
-		final MouseButton button = MouseButton.fromEvent(e);
+		final CustomMouseButton button = CustomMouseButton.fromEvent(e);
 		if (button != null) {
 			pressedButtons.remove(button);
 		}

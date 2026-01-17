@@ -1,6 +1,6 @@
 package log.charter.gui.chartPanelDrawers;
 
-import java.awt.Graphics2D;
+import javafx.scene.canvas.GraphicsContext;
 
 import log.charter.data.ChartData;
 import log.charter.gui.chartPanelDrawers.common.LyricLinesDrawer;
@@ -52,7 +52,7 @@ public class ArrangementDrawer implements Initiable {
 				mouseButtonPressReleaseHandler, mouseHandler, selectionManager);
 	}
 
-	private FrameData generateFrameData(final Graphics2D g, final double time) {
+	private FrameData generateFrameData(final GraphicsContext gc, final double time) {
 		return new FrameData(chartData.beats().getClone().immutable, //
 				chartData.songChart.bookmarks, //
 				chartData.currentVocals(), //
@@ -61,13 +61,13 @@ public class ArrangementDrawer implements Initiable {
 				repeatManager.repeatSpan(), //
 				selectionManager.selectedAccessor(), //
 				time, //
-				g, //
+				gc, //
 				generateHighlightData(time), //
 				keyboardHandler.ctrl());
 	}
 
-	public void draw(final Graphics2D g, final double time) {
-		final FrameData frameData = generateFrameData(g, time);
+	public void draw(final GraphicsContext gc, final double time) {
+		final FrameData frameData = generateFrameData(gc, time);
 
 		switch (modeManager.getMode()) {
 			case TEMPO_MAP -> tempoMapDrawer.draw(frameData);

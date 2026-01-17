@@ -1,8 +1,7 @@
 package log.charter.gui.chartPanelDrawers.drawableShapes;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 class FilledOval implements DrawableShape {
 	private final ShapePositionWithSize position;
@@ -14,9 +13,8 @@ class FilledOval implements DrawableShape {
 	}
 
 	@Override
-	public void draw(final Graphics2D g) {
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g.setColor(color);
-		g.fillOval(position.x, position.y, position.width, position.height);
+	public void draw(final GraphicsContext gc) {
+		gc.setFill(color);
+		gc.fillOval(position.x, position.y, position.width, position.height);
 	}
 }

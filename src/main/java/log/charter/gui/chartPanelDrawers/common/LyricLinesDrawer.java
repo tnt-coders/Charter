@@ -1,13 +1,9 @@
 package log.charter.gui.chartPanelDrawers.common;
 
-import static log.charter.gui.chartPanelDrawers.common.DrawerUtils.beatSizeTextY;
-import static log.charter.gui.chartPanelDrawers.common.DrawerUtils.lyricLinesY;
-import static log.charter.gui.chartPanelDrawers.drawableShapes.DrawableShape.filledRectangle;
-import static log.charter.util.ScalingUtils.positionToX;
-
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
 
 import log.charter.data.ChartData;
 import log.charter.data.config.ChartPanelColors.ColorLabel;
@@ -25,11 +21,11 @@ import log.charter.util.data.Position2D;
 
 public class LyricLinesDrawer {
 	private static int height = lyricLinesY - beatSizeTextY;
-	private static Font lyricLineFont = new Font(Font.DIALOG, Font.ITALIC, height - 3);
+	private static Font lyricLineFont = Font.font("Dialog", FontPosture.ITALIC, height - 3);
 
 	public static void reloadGraphics() {
 		height = lyricLinesY - beatSizeTextY;
-		lyricLineFont = new Font(Font.DIALOG, Font.ITALIC, height - 3);
+		lyricLineFont = Font.font("Dialog", FontPosture.ITALIC, height - 3);
 	}
 
 	private static class VocalLinesDrawingData {
@@ -45,10 +41,10 @@ public class LyricLinesDrawer {
 			texts.add(new Text(textPosition, lyricLineFont, text, color));
 		}
 
-		public void draw(final Graphics2D g) {
+		public void draw(final GraphicsContext gc) {
 			reloadGraphics();
-			backgrounds.draw(g);
-			texts.draw(g);
+			backgrounds.draw(gc);
+			texts.draw(gc);
 		}
 	}
 
@@ -86,6 +82,6 @@ public class LyricLinesDrawer {
 			}
 		}
 
-		drawingData.draw(frameData.g);
+		drawingData.draw(frameData.gc);
 	}
 }

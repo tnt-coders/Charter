@@ -1,21 +1,23 @@
 package log.charter.gui.chartPanelDrawers.drawableShapes;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
+import javafx.scene.text.TextBoundsType;
 
 import log.charter.data.config.ChartPanelColors.ColorLabel;
 import log.charter.util.data.Position2D;
 
 public class Text implements DrawableShape {
-	public static ShapeSize getExpectedSize(final Graphics2D g, final Font font, final String text) {
-		g.setFont(font);
+	public static ShapeSize getExpectedSize(final GraphicsContext gc, final Font font, final String text) {
+		final javafx.scene.text.Text textNode = new javafx.scene.text.Text(text);
+		textNode.setFont(font);
+		textNode.setBoundsType(TextBoundsType.VISUAL);
+		final double width = textNode.getLayoutBounds().getWidth();
+		final double height = textNode.getLayoutBounds().getHeight();
 
-		final int width = g.getFontMetrics().stringWidth(text) + (font.isItalic() ? 1 : 0);
-		final int height = g.getFontMetrics().getAscent() - g.getFontMetrics().getDescent() - (font.isItalic() ? 1 : 0);
-
-		return new ShapeSize(width, height);
+		return new ShapeSize((int) width, (int) height);
 	}
 
 	private final Position2D position;
@@ -35,19 +37,18 @@ public class Text implements DrawableShape {
 	}
 
 	@Override
-	public void draw(final Graphics2D g) {
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		draw(g, getPositionWithSize(g));
+	public void draw(final GraphicsContext gc) {
+		draw(gc, getPositionWithSize(gc));
 	}
 
-	public ShapePositionWithSize getPositionWithSize(final Graphics2D g) {
-		final ShapeSize size = getExpectedSize(g, font, text);
+	public ShapePositionWithSize getPositionWithSize(final GraphicsContext gc) {
+		final ShapeSize size = getExpectedSize(gc, font, text);
 		return new ShapePositionWithSize(position.x, position.y, size.width, size.height);
 	}
 
-	public void draw(final Graphics2D g, final ShapePositionWithSize positionAndSize) {
-		g.setFont(font);
-		g.setColor(color);
-		g.drawString(text, positionAndSize.x, positionAndSize.y + positionAndSize.height);
+	public void draw(final GraphicsContext gc, final ShapePositionWithSize positionAndSize) {
+		gc.setFont(font);
+		gc.setFill(color);
+		gc.fillText(text, positionAndSize.x, positionAndSize.y + positionAndSize.height);
 	}
 }

@@ -1,28 +1,11 @@
 package log.charter.gui.components.containers;
 
-import java.awt.Component;
+import javafx.scene.Node;
+import javafx.scene.control.ScrollPane;
 
-import javax.swing.JScrollPane;
+public class CharterScrollPane extends ScrollPane {
 
-import log.charter.gui.lookAndFeel.CharterScrollBarUI;
-
-public class CharterScrollPane extends JScrollPane {
-	private static final long serialVersionUID = 7947218119497728703L;
-
-	public CharterScrollPane(final Component view) {
+	public CharterScrollPane(final Node view) {
 		super(view);
-
-		getVerticalScrollBar().setUI(new CharterScrollBarUI());
-		getHorizontalScrollBar().setUI(new CharterScrollBarUI());
-
-		setVerticalScrollbarSpeed(5);
-	}
-
-	public CharterScrollPane(final Component view, final int vsbPolicy, final int hsbPolicy) {
-		super(view, vsbPolicy, hsbPolicy);
-	}
-
-	public void setVerticalScrollbarSpeed(final int speed) {
-		getVerticalScrollBar().setUnitIncrement(speed);
 	}
 }

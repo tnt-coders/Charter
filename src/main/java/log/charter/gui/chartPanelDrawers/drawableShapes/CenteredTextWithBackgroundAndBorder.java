@@ -1,21 +1,20 @@
 package log.charter.gui.chartPanelDrawers.drawableShapes;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 
 import log.charter.data.config.ChartPanelColors.ColorLabel;
 import log.charter.util.data.Position2D;
 
 public class CenteredTextWithBackgroundAndBorder implements DrawableShape {
-	public static ShapePositionWithSize getExpectedPositionAndSize(final Graphics2D g, final Position2D position,
+	public static ShapePositionWithSize getExpectedPositionAndSize(final GraphicsContext gc, final Position2D position,
 			final Font font, final String text) {
-		return CenteredTextWithBackground.getExpectedPositionAndSize(g, position, font, text).resized(-1, -1, 2, 2);
+		return CenteredTextWithBackground.getExpectedPositionAndSize(gc, position, font, text).resized(-1, -1, 2, 2);
 	}
 
-	public static ShapeSize getExpectedSize(final Graphics2D g, final Font font, final String text) {
-		final ShapeSize innerSize = CenteredTextWithBackground.getExpectedSize(g, font, text);
+	public static ShapeSize getExpectedSize(final GraphicsContext gc, final Font font, final String text) {
+		final ShapeSize innerSize = CenteredTextWithBackground.getExpectedSize(gc, font, text);
 		return new ShapeSize(innerSize.width + 2, innerSize.height + 2);
 	}
 
@@ -34,22 +33,22 @@ public class CenteredTextWithBackgroundAndBorder implements DrawableShape {
 	}
 
 	@Override
-	public void draw(final Graphics2D g) {
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		draw(g, getPositionAndSize(g));
+	public void draw(final GraphicsContext gc) {
+		draw(gc, getPositionAndSize(gc));
 	}
 
-	public ShapePositionWithSize getPositionAndSize(final Graphics2D g) {
-		return centeredTextWithBackground.getPositionAndSize(g).resized(-1, -1, 2, 2);
+	public ShapePositionWithSize getPositionAndSize(final GraphicsContext gc) {
+		return centeredTextWithBackground.getPositionAndSize(gc).resized(-1, -1, 2, 2);
 	}
 
-	public void draw(final Graphics2D g, final ShapePositionWithSize positionAndSize) {
+	public void draw(final GraphicsContext gc, final ShapePositionWithSize positionAndSize) {
 		if (borderColor != null) {
-			g.setColor(borderColor);
-			g.drawRect(positionAndSize.x, positionAndSize.y, positionAndSize.width - 1, positionAndSize.height - 1);
+			gc.setStroke(borderColor);
+			gc.setLineWidth(1);
+			gc.strokeRect(positionAndSize.x, positionAndSize.y, positionAndSize.width - 1, positionAndSize.height - 1);
 		}
 
-		centeredTextWithBackground.draw(g, positionAndSize.resized(1, 1, -2, -2));
+		centeredTextWithBackground.draw(gc, positionAndSize.resized(1, 1, -2, -2));
 	}
 
 }
